@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- Primary SEO -->
+<title>LORIUM — Architectural Streetwear | Foundational Luxury | loriumarchive.com</title>
+<meta name="description" content="Lorium Archive is an architectural streetwear brand built on foundational luxury. Shop the QZ-001 heavyweight full zip — 400GSM fleece, custom cast-metal hardware, asymmetric collar. Based in DFW.">
+<meta name="keywords" content="lorium, lorium archive, architectural streetwear, foundational luxury, QZ-001, heavyweight zip, luxury streetwear, technical streetwear, DFW fashion brand, minimalist streetwear, archive fashion">
+<meta name="author" content="Lorium Archive">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://loriumarchive.com">
+
+<!-- Open Graph (Facebook, iMessage, Discord previews) -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://loriumarchive.com">
+<meta property="og:title" content="LORIUM — Architectural Streetwear">
+<meta property="og:description" content="Foundational luxury built for the long game. QZ-001 heavyweight full zip — 400GSM fleece, custom cast-metal hardware. Sample production underway.">
+<meta property="og:image" content="https://loriumarchive.com/assets/images/og-image.jpg">
+<meta property="og:site_name" content="Lorium Archive">
+<meta property="og:locale" content="en_US">
+
+<!-- Twitter/X Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:url" content="https://loriumarchive.com">
+<meta name="twitter:title" content="LORIUM — Architectural Streetwear">
+<meta name="twitter:description" content="Foundational luxury built for the long game. QZ-001 heavyweight full zip — 400GSM fleece, custom cast-metal hardware.">
+<meta name="twitter:image" content="https://loriumarchive.com/assets/images/og-image.jpg">
+
+<!-- Schema.org Structured Data -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ClothingStore",
+  "name": "Lorium Archive",
+  "url": "https://loriumarchive.com",
+  "description": "Architectural streetwear brand built on foundational luxury. Technical minimalism, structured silhouettes, latent engineering.",
+  "brand": {
+    "@type": "Brand",
+    "name": "Lorium"
+  },
+  "sameAs": [
+    "https://instagram.com/lorium.archive"
+  ],
+  "address": {
+    "@type": "PostalAddress",
+    "addressRegion": "TX",
+    "addressCountry": "US"
+  },
+  "hasOfferCatalog": {
+    "@type": "OfferCatalog",
+    "name": "Collection One",
+    "itemListElement": [
+      {
+        "@type": "Offer",
+        "itemOffered": {
+          "@type": "Product",
+          "name": "QZ-001 Full Zip",
+          "description": "Asymmetrical stand-up collar, custom cast-metal zipper hardware, 400-420 GSM heavyweight fleece, raised chest embroidery.",
+          "brand": { "@type": "Brand", "name": "Lorium" },
+          "category": "Outerwear"
+        }
+      }
+    ]
+  }
+}
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #080808;
+    --fg: #EDE8DF;
+    --muted: #5C5852;
+    --muted-light: #8A857E;
+    --border: rgba(237, 232, 223, 0.08);
+    --border-mid: rgba(237, 232, 223, 0.15);
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    overflow-x: hidden;
+    cursor: crosshair;
+  }
+
+  /* Grain */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    opacity: 0.025;
+    pointer-events: none;
+    z-index: 999;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 50;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 2.5rem;
+    border-bottom: 1px solid var(--border);
+    background: rgba(8, 8, 8, 0.9);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    opacity: 0;
+    animation: fadeIn 1.2s ease forwards 0.3s;
+  }
+
+  .nav-logo {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.3em;
+    color: var(--fg);
+    text-decoration: none;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 2.5rem;
+    list-style: none;
+  }
+
+  .nav-links a {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    text-decoration: none;
+    text-transform: uppercase;
+    transition: color 0.3s ease;
+  }
+
+  .nav-links a:hover { color: var(--fg); }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 0 2.5rem 4rem;
+    position: relative;
+  }
+
+  .hero-eyebrow {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.35em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 1.25rem;
+    opacity: 0;
+    animation: slideUp 1s ease forwards 0.7s;
+  }
+
+  .hero-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-size: clamp(4.5rem, 13vw, 11rem);
+    line-height: 0.88;
+    letter-spacing: -0.02em;
+    color: var(--fg);
+    opacity: 0;
+    animation: slideUp 1.4s ease forwards 0.5s;
+  }
+
+  .hero-title em {
+    font-style: italic;
+    color: var(--muted);
+  }
+
+  .hero-bottom {
+    margin-top: 2rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    opacity: 0;
+    animation: slideUp 1s ease forwards 1s;
+  }
+
+  .hero-bottom-left {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    line-height: 2;
+    text-transform: uppercase;
+  }
+
+  .hero-bottom-right {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1rem;
+    font-weight: 300;
+    font-style: italic;
+    color: var(--muted-light);
+    text-align: right;
+    line-height: 1.6;
+  }
+
+  /* MARQUEE */
+  .marquee-wrap {
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    overflow: hidden;
+    padding: 0.7rem 0;
+    opacity: 0;
+    animation: fadeIn 1s ease forwards 1.3s;
+  }
+
+  .marquee-track {
+    display: flex;
+    white-space: nowrap;
+    animation: scroll 24s linear infinite;
+  }
+
+  .marquee-item {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.5rem;
+    letter-spacing: 0.3em;
+    color: var(--muted);
+    text-transform: uppercase;
+    padding: 0 2.5rem;
+    flex-shrink: 0;
+  }
+
+  @keyframes scroll {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  /* PRODUCT */
+  .product-section {
+    padding: 8rem 2.5rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5rem;
+    align-items: center;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .product-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.5rem;
+    letter-spacing: 0.35em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+  }
+
+  .product-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-size: clamp(2.8rem, 5.5vw, 5rem);
+    line-height: 0.95;
+    letter-spacing: -0.02em;
+    margin-bottom: 1.25rem;
+  }
+
+  .product-desc {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.05rem;
+    font-style: italic;
+    color: var(--muted-light);
+    line-height: 1.7;
+    margin-bottom: 2.5rem;
+    max-width: 400px;
+  }
+
+  .spec-grid {
+    border-top: 1px solid var(--border);
+    margin-bottom: 2.5rem;
+  }
+
+  .spec-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.65rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .spec-key {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.5rem;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .spec-val {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.5rem;
+    letter-spacing: 0.1em;
+    color: var(--fg);
+    text-transform: uppercase;
+    text-align: right;
+  }
+
+  .btn-notify {
+    display: inline-block;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--bg);
+    background: var(--fg);
+    padding: 0.85rem 1.75rem;
+    text-decoration: none;
+    border: none;
+    cursor: crosshair;
+    transition: opacity 0.3s ease;
+  }
+
+  .btn-notify:hover { opacity: 0.75; }
+
+  /* Product image placeholder */
+  .product-visual {
+    aspect-ratio: 3 / 4;
+    background: #0C0C0C;
+    border: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .product-visual::before,
+  .product-visual::after {
+    content: '';
+    position: absolute;
+    background: var(--border);
+  }
+
+  .product-visual::before {
+    top: 0; left: 50%;
+    width: 1px; height: 100%;
+    transform: rotate(15deg);
+    transform-origin: top;
+  }
+
+  .product-visual::after {
+    top: 50%; left: 0;
+    width: 100%; height: 1px;
+  }
+
+  .product-visual-tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.48rem;
+    letter-spacing: 0.3em;
+    color: var(--muted);
+    text-transform: uppercase;
+    text-align: center;
+    line-height: 2.2;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* MANIFESTO */
+  .manifesto {
+    padding: 8rem 2.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .manifesto-quote {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-style: italic;
+    font-size: clamp(2rem, 4vw, 3.5rem);
+    line-height: 1.35;
+    color: var(--fg);
+    max-width: 820px;
+    margin-bottom: 2.5rem;
+  }
+
+  .manifesto-quote .dim { color: var(--muted); }
+
+  .manifesto-sig {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.5rem;
+    letter-spacing: 0.35em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  /* FOOTER */
+  footer {
+    padding: 2rem 2.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .footer-copy {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.48rem;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .footer-links {
+    display: flex;
+    gap: 2rem;
+  }
+
+  .footer-links a {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.48rem;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    text-decoration: none;
+    text-transform: uppercase;
+    transition: color 0.3s ease;
+  }
+
+  .footer-links a:hover { color: var(--fg); }
+
+  /* ANIMATIONS */
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(28px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(22px);
+    transition: opacity 1s ease, transform 1s ease;
+  }
+
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .reveal-delay { transition-delay: 0.2s; }
+
+  /* RESPONSIVE */
+  @media (max-width: 900px) {
+    .product-section {
+      grid-template-columns: 1fr;
+      padding: 5rem 1.75rem;
+      gap: 3rem;
+    }
+    .product-visual { aspect-ratio: 4 / 3; }
+  }
+
+  @media (max-width: 640px) {
+    nav { padding: 1.25rem 1.5rem; }
+    .hero { padding: 0 1.5rem 3rem; }
+    .hero-bottom { flex-direction: column; gap: 1rem; align-items: flex-start; }
+    .hero-bottom-right { text-align: left; }
+    .manifesto { padding: 5rem 1.5rem; }
+    footer { padding: 1.5rem; flex-direction: column; align-items: flex-start; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo">LORIUM</a>
+  <ul class="nav-links">
+    <li><a href="#product">QZ—001</a></li>
+    <li><a href="#about">About</a></li>
+    <li><a href="https://instagram.com/lorium.archive" target="_blank">Archive</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <p class="hero-eyebrow">Collection One — SS 2025</p>
+  <h1 class="hero-title">Lorium<br><em>Archive</em></h1>
+  <div class="hero-bottom">
+    <div class="hero-bottom-left">
+      Architectural Streetwear<br>
+      Foundational Luxury<br>
+      Est. DFW — 2025
+    </div>
+    <div class="hero-bottom-right">
+      Latent technology.<br>
+      Never badged.
+    </div>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee-wrap" aria-hidden="true">
+  <div class="marquee-track">
+    <span class="marquee-item">Architectural Streetwear</span>
+    <span class="marquee-item">·</span>
+    <span class="marquee-item">Foundational Luxury</span>
+    <span class="marquee-item">·</span>
+    <span class="marquee-item">QZ — 001</span>
+    <span class="marquee-item">·</span>
+    <span class="marquee-item">400 GSM Heavyweight Fleece</span>
+    <span class="marquee-item">·</span>
+    <span class="marquee-item">Cast Metal Hardware</span>
+    <span class="marquee-item">·</span>
+    <span class="marquee-item">Latent Technology</span>
+    <span class="marquee-item">·</span>
+    <span class="marquee-item">Coming Soon</span>
+    <span class="marquee-item">·</span>
+    <span class="marquee-item">Architectural Streetwear</span>
+    <span class="marquee-item">·</span>
+    <span class="marquee-item">Foundational Luxury</span>
+    <span class="marquee-item">·</span>
+    <span class="marquee-item">QZ — 001</span>
+    <span class="marquee-item">·</span>
+    <span class="marquee-item">400 GSM Heavyweight Fleece</span>
+    <span class="marquee-item">·</span>
+    <span class="marquee-item">Cast Metal Hardware</span>
+    <span class="marquee-item">·</span>
+    <span class="marquee-item">Latent Technology</span>
+    <span class="marquee-item">·</span>
+    <span class="marquee-item">Coming Soon</span>
+    <span class="marquee-item">·</span>
+  </div>
+</div>
+
+<!-- PRODUCT -->
+<section class="product-section" id="product">
+  <div class="product-info reveal">
+    <p class="product-label">Collection One — 001</p>
+    <h2 class="product-name">QZ—001<br>Full Zip</h2>
+    <p class="product-desc">Asymmetrical stand-up collar. Custom cast-metal zipper hardware. 400–420 GSM heavyweight fleece construction. Engineering embedded in the garment — discoverable through wear, never announced.</p>
+    <div class="spec-grid">
+      <div class="spec-row">
+        <span class="spec-key">Material</span>
+        <span class="spec-val">400–420 GSM Fleece</span>
+      </div>
+      <div class="spec-row">
+        <span class="spec-key">Construction</span>
+        <span class="spec-val">French Terry</span>
+      </div>
+      <div class="spec-row">
+        <span class="spec-key">Collar</span>
+        <span class="spec-val">Asymmetric Stand-Up</span>
+      </div>
+      <div class="spec-row">
+        <span class="spec-key">Zipper Pull</span>
+        <span class="spec-val">Custom Cast Metal</span>
+      </div>
+      <div class="spec-row">
+        <span class="spec-key">Chest Detail</span>
+        <span class="spec-val">Raised Embroidery</span>
+      </div>
+      <div class="spec-row">
+        <span class="spec-key">Status</span>
+        <span class="spec-val">Sample Production</span>
+      </div>
+    </div>
+    <a href="mailto:lorium@loriumarchive.com" class="btn-notify">Get Notified</a>
+  </div>
+
+  <div class="product-visual reveal reveal-delay">
+    <div class="product-visual-tag">
+      QZ — 001<br>
+      Sample Incoming<br>
+      ——<br>
+      Lorium / Collection One<br>
+      MMXXV
+    </div>
+  </div>
+</section>
+
+<!-- MANIFESTO -->
+<section class="manifesto" id="about">
+  <p class="manifesto-quote reveal">
+    <span class="dim">"</span>Not a uniform.<br>
+    Not a statement.<br>
+    A foundation — built to outlast<br>
+    the moment it was made in.<span class="dim">"</span>
+  </p>
+  <p class="manifesto-sig reveal reveal-delay">LORIUM — Architectural Streetwear</p>
+</section>
+
+<footer>
+  <p class="footer-copy">© Lorium MMXXV — loriumarchive.com</p>
+  <nav class="footer-links" aria-label="Footer navigation">
+    <a href="https://instagram.com/lorium.archive" target="_blank">@lorium.archive</a>
+    <a href="mailto:lorium@loriumarchive.com">Contact</a>
+  </nav>
+</footer>
+
+<script>
+const observer = new IntersectionObserver(
+  entries => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); }),
+  { threshold: 0.12 }
+);
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+
+</body>
+</html>
