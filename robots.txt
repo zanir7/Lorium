@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://loriumarchive.com/sitemap.xml
