@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Philosophy — Lorium Archive</title>
+<meta name="description" content="Notes from the workbench. Process-forward writing on the construction decisions behind Lorium.">
+<meta name="author" content="Lorium">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://loriumarchive.com/philosophy.html">
+
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://loriumarchive.com/philosophy.html">
+<meta property="og:title" content="Philosophy — Lorium Archive">
+<meta property="og:description" content="Notes from the workbench. Process-forward writing on the construction decisions behind Lorium.">
+<meta property="og:image" content="https://loriumarchive.com/IMG_9505.PNG">
+<meta property="og:site_name" content="Lorium">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #080808;
+    --fg: #EDE8DF;
+    --muted: #5C5852;
+    --muted-light: #8A857E;
+    --border: rgba(237, 232, 223, 0.08);
+    --border-mid: rgba(237, 232, 223, 0.15);
+    --green: #4ade80;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    overflow-x: hidden;
+    cursor: crosshair;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  a, button { cursor: crosshair; }
+
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    opacity: 0.025;
+    pointer-events: none;
+    z-index: 999;
+  }
+
+  /* NAV — mirrors index.html */
+  nav.site-nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 50;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 2.5rem;
+    border-bottom: 1px solid var(--border);
+    background: rgba(8, 8, 8, 0.9);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    opacity: 0;
+    animation: fadeIn 1.2s ease forwards 0.3s;
+  }
+
+  .nav-logo {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.3em;
+    color: var(--fg);
+    text-decoration: none;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 2.5rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .nav-links a {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    text-decoration: none;
+    text-transform: uppercase;
+    transition: color 0.3s ease;
+  }
+
+  .nav-links a:hover { color: var(--fg); }
+  .nav-links a.current { color: var(--fg); }
+
+  /* PAGE */
+  main.page {
+    flex: 1;
+    padding: 10rem 2.5rem 6rem;
+    max-width: 780px;
+    width: 100%;
+    margin: 0 auto;
+    opacity: 0;
+    animation: fadeIn 1s ease forwards 0.5s;
+  }
+
+  .page-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.35em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+  }
+
+  .page-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-size: clamp(3rem, 8vw, 5.5rem);
+    line-height: 0.95;
+    letter-spacing: -0.02em;
+    color: var(--fg);
+    margin-bottom: 1.25rem;
+  }
+
+  .page-sub {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 1.1rem;
+    font-weight: 300;
+    color: var(--muted-light);
+    line-height: 1.6;
+    margin-bottom: 5rem;
+    max-width: 540px;
+  }
+
+  /* NOTE */
+  .note {
+    padding-top: 3rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .note-meta {
+    display: flex;
+    align-items: baseline;
+    gap: 1.25rem;
+    margin-bottom: 1.75rem;
+    flex-wrap: wrap;
+  }
+
+  .note-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.5rem;
+    letter-spacing: 0.3em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .note-date {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.5rem;
+    letter-spacing: 0.25em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .note-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-size: clamp(1.8rem, 3.5vw, 2.5rem);
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    color: var(--fg);
+    margin-bottom: 2.5rem;
+    max-width: 640px;
+  }
+
+  .note-body p {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.15rem;
+    font-weight: 300;
+    line-height: 1.85;
+    color: var(--fg);
+    margin-bottom: 1.6rem;
+    max-width: 640px;
+  }
+
+  .note-body p em { color: var(--muted-light); font-style: italic; }
+
+  .note-sig {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.48rem;
+    letter-spacing: 0.3em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-top: 3rem;
+  }
+
+  /* FOOTER — mirrors index.html */
+  footer {
+    padding: 2rem 2.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .footer-copy {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.48rem;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .footer-links {
+    display: flex;
+    gap: 2rem;
+  }
+
+  .footer-links a {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.48rem;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    text-decoration: none;
+    text-transform: uppercase;
+    transition: color 0.3s ease;
+  }
+
+  .footer-links a:hover { color: var(--fg); }
+
+  /* ANIMATIONS */
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 900px) {
+    main.page { padding: 8rem 1.75rem 4rem; }
+  }
+
+  @media (max-width: 640px) {
+    nav.site-nav { padding: 1.25rem 1.5rem; }
+    .nav-links { gap: 1.25rem; }
+    main.page { padding: 7rem 1.5rem 3.5rem; }
+    .note-body p { font-size: 1.05rem; }
+    footer { padding: 1.5rem; flex-direction: column; align-items: flex-start; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="site-nav">
+  <a href="/" class="nav-logo">LORIUM</a>
+  <ul class="nav-links">
+    <li><a href="/#product">QZ—001</a></li>
+    <li><a href="/#story">About</a></li>
+    <li><a href="/philosophy.html" class="current">Philosophy</a></li>
+  </ul>
+</nav>
+
+<main class="page">
+  <p class="page-label">Philosophy</p>
+  <h1 class="page-title">Notes from the workbench.</h1>
+  <p class="page-sub">Construction decisions, written as they happen. The reasoning behind the garment — kept legible, kept on record.</p>
+
+  <article class="note">
+    <div class="note-meta">
+      <span class="note-num">Note 001</span>
+      <span class="note-date">May 2026</span>
+    </div>
+    <h2 class="note-title">On the collar.</h2>
+    <div class="note-body">
+      <p>The QZ-001 collar started at 7.5 cm. Static, in a mirror, it read as architecture.</p>
+      <p>The body isn't static. The Adam's apple moves — when you swallow, when you speak, when you look down at a keyboard — and a fixed height built without that motion in mind is built without the wearer in mind.</p>
+      <p>The collar shortens. The fabric weight stays. Architecture that anticipates the body that wears it, instead of asking the body to hold still for the garment.</p>
+    </div>
+    <p class="note-sig">QZ — 001 · Collar revision · Sample stage</p>
+  </article>
+</main>
+
+<footer>
+  <p class="footer-copy">© Lorium MMXXV — loriumarchive.com</p>
+  <nav class="footer-links" aria-label="Footer navigation">
+    <a href="https://instagram.com/lorium.archive" target="_blank" rel="noopener">@lorium.archive</a>
+    <a href="/philosophy.html">Philosophy</a>
+    <a href="/privacy.html">Privacy</a>
+  </nav>
+</footer>
+
+</body>
+</html>
