@@ -644,7 +644,7 @@
   <ul class="nav-links">
     <li><a href="#product">QZ—001</a></li>
     <li><a href="#story">About</a></li>
-    <li><a href="/philosophy.html">Philosophy</a></li>
+    <li><a href="/philosophy">Philosophy</a></li>
     <li><button type="button" data-tally-open="EkbEQr" data-tally-overlay="1" data-tally-emoji-text="⏿" data-tally-emoji-animation="rubber-band" data-tally-auto-close="1000" data-tally-form-events-forwarding="1">Founder's Code</button></li>
   </ul>
 </nav>
@@ -793,17 +793,41 @@
   <p class="footer-copy">© Lorium MMXXV — loriumarchive.com</p>
   <nav class="footer-links" aria-label="Footer navigation">
     <a href="https://instagram.com/lorium.archive" target="_blank" rel="noopener">@lorium.archive</a>
-    <a href="/philosophy.html">Philosophy</a>
+    <a href="/philosophy">Philosophy</a>
     <a href="/privacy.html">Privacy</a>
   </nav>
 </footer>
 
 <script>
+  // Reveal on scroll
   const observer = new IntersectionObserver(
     entries => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); }),
     { threshold: 0.1 }
   );
   document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  // In-page nav: smooth-scroll to the section without writing #hash to the URL
+  document.querySelectorAll('a[href^="#"]').forEach(link => {
+    link.addEventListener('click', e => {
+      const target = document.getElementById(link.getAttribute('href').slice(1));
+      if (target) {
+        e.preventDefault();
+        target.scrollIntoView({ behavior: 'smooth' });
+      }
+    });
+  });
+
+  // Arrived with a #hash (e.g. from the Philosophy page): jump to the
+  // section, then strip the hash so the URL stays clean (loriumarchive.com)
+  if (window.location.hash) {
+    const target = document.getElementById(window.location.hash.slice(1));
+    if (target) {
+      requestAnimationFrame(() => {
+        target.scrollIntoView({ behavior: 'auto' });
+        history.replaceState(null, '', window.location.pathname);
+      });
+    }
+  }
 </script>
 
 </body>
