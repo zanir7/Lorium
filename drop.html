@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>LORIUM — QZ-001 Drop</title>
+<meta name="description" content="QZ-001 drops to your phone first. Enter your number. You'll hear from us once, on drop day.">
+<meta name="robots" content="noindex, nofollow">
+<link rel="canonical" href="https://loriumarchive.com/drop">
+
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://loriumarchive.com/drop">
+<meta property="og:title" content="LORIUM — QZ-001">
+<meta property="og:description" content="QZ-001 drops to your phone first. You'll hear from us once, on drop day.">
+<meta property="og:image" content="https://loriumarchive.com/IMG_9505.PNG">
+<meta property="og:site_name" content="Lorium">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="LORIUM — QZ-001">
+<meta name="twitter:description" content="QZ-001 drops to your phone first. You'll hear from us once, on drop day.">
+<meta name="twitter:image" content="https://loriumarchive.com/IMG_9505.PNG">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #080808;
+    --fg: #EDE8DF;
+    --muted: #5C5852;
+    --muted-light: #8A857E;
+    --border: rgba(237, 232, 223, 0.08);
+    --border-mid: rgba(237, 232, 223, 0.15);
+    --green: #4ade80;
+    --error: #d97a6c;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    overflow-x: hidden;
+    cursor: crosshair;
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  a, button, input { cursor: crosshair; }
+
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    opacity: 0.025;
+    pointer-events: none;
+    z-index: 999;
+  }
+
+  /* NAV */
+  nav.site-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 2.5rem;
+    border-bottom: 1px solid var(--border);
+    opacity: 0;
+    animation: fadeIn 1.2s ease forwards 0.3s;
+  }
+
+  .nav-logo {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.3em;
+    color: var(--fg);
+    text-decoration: none;
+  }
+
+  .nav-tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  /* MAIN */
+  main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 4rem 2.5rem;
+    text-align: center;
+  }
+
+  .drop-eyebrow {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.35em;
+    color: var(--muted-light);
+    text-transform: uppercase;
+    margin-bottom: 2rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    opacity: 0;
+    animation: slideUp 1s ease forwards 0.5s;
+  }
+
+  .pulse-dot {
+    position: relative;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--green);
+    flex-shrink: 0;
+  }
+
+  .pulse-dot::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: var(--green);
+    animation: pulse-ring 2s ease-out infinite;
+  }
+
+  @keyframes pulse-ring {
+    0%   { transform: scale(1);   opacity: 0.4; }
+    100% { transform: scale(2.5); opacity: 0;   }
+  }
+
+  .drop-headline {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-size: clamp(2.2rem, 6vw, 4.25rem);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    color: var(--fg);
+    max-width: 760px;
+    margin-bottom: 1.75rem;
+    opacity: 0;
+    animation: slideUp 1.4s ease forwards 0.6s;
+  }
+
+  .drop-headline em {
+    font-style: italic;
+    color: var(--muted);
+  }
+
+  .drop-subline {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: clamp(1.05rem, 2.2vw, 1.35rem);
+    font-weight: 300;
+    color: var(--muted-light);
+    line-height: 1.6;
+    max-width: 460px;
+    margin-bottom: 2.75rem;
+    opacity: 0;
+    animation: slideUp 1s ease forwards 0.85s;
+  }
+
+  /* FORM */
+  .drop-form {
+    display: flex;
+    width: 100%;
+    max-width: 460px;
+    border: 1px solid var(--border-mid);
+    opacity: 0;
+    animation: slideUp 1s ease forwards 1s;
+  }
+
+  .drop-form input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--fg);
+    font-family: 'Space Mono', monospace;
+    font-size: 0.8rem;
+    letter-spacing: 0.1em;
+    padding: 1.1rem 1.25rem;
+  }
+
+  .drop-form input::placeholder {
+    color: var(--muted);
+    letter-spacing: 0.1em;
+  }
+
+  .drop-form button {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--bg);
+    background: var(--fg);
+    border: none;
+    padding: 0 2rem;
+    transition: opacity 0.3s ease;
+    flex-shrink: 0;
+  }
+
+  .drop-form button:hover { opacity: 0.75; }
+  .drop-form button:disabled { opacity: 0.4; cursor: wait; }
+
+  .drop-error {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--error);
+    margin-top: 1rem;
+    min-height: 0.8rem;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .drop-error.show { opacity: 1; }
+
+  /* COUNTER */
+  .drop-counter {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 2.5rem;
+    opacity: 0;
+    animation: fadeIn 1.2s ease forwards 1.3s;
+  }
+
+  .drop-counter strong {
+    color: var(--fg);
+    font-weight: 700;
+  }
+
+  .drop-counter.hidden { display: none; }
+
+  /* SUCCESS STATE */
+  .drop-success {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .drop-success.show {
+    display: flex;
+    animation: slideUp 1s ease forwards;
+  }
+
+  .success-mark {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-size: clamp(3rem, 9vw, 6rem);
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--fg);
+    margin-bottom: 1.5rem;
+  }
+
+  .success-sub {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--muted-light);
+    line-height: 2;
+    max-width: 360px;
+  }
+
+  /* FOOTER */
+  footer {
+    padding: 2rem 2.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .footer-copy {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.48rem;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .footer-links {
+    display: flex;
+    gap: 2rem;
+  }
+
+  .footer-links a {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.48rem;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    text-decoration: none;
+    text-transform: uppercase;
+    transition: color 0.3s ease;
+  }
+
+  .footer-links a:hover { color: var(--fg); }
+
+  /* ANIMATIONS */
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(28px); }
+    to   { opacity: 1; transform: translateY(0);    }
+  }
+
+  @media (max-width: 640px) {
+    nav.site-nav { padding: 1.25rem 1.5rem; }
+    main { padding: 3rem 1.5rem; }
+    .drop-form { flex-direction: column; }
+    .drop-form input { text-align: center; }
+    .drop-form button { padding: 1rem; }
+    footer { padding: 1.5rem; flex-direction: column; align-items: flex-start; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="site-nav">
+  <a href="/" class="nav-logo">LORIUM</a>
+  <span class="nav-tag">QZ — 001</span>
+</nav>
+
+<main>
+  <!-- CAPTURE STATE -->
+  <div class="drop-capture" id="capture">
+    <p class="drop-eyebrow"><span class="pulse-dot" aria-hidden="true"></span>Collection One — SS 2025</p>
+    <h1 class="drop-headline">Most quarter zips look wrong on most men. <em>This one doesn't.</em></h1>
+    <p class="drop-subline">Enter your number. You'll hear from us once, on drop day.</p>
+
+    <form class="drop-form" id="signup-form" novalidate>
+      <input
+        type="tel"
+        id="phone"
+        name="phone"
+        inputmode="tel"
+        autocomplete="tel"
+        placeholder="(000) 000 0000"
+        aria-label="Phone number"
+        required>
+      <button type="submit" id="submit-btn">Enter</button>
+    </form>
+    <p class="drop-error" id="error" role="alert"></p>
+
+    <p class="drop-counter" id="counter"><strong>47 / 50</strong> slots claimed — production locked at capacity</p>
+  </div>
+
+  <!-- SUCCESS STATE -->
+  <div class="drop-success" id="success">
+    <p class="success-mark">You're in.</p>
+    <p class="success-sub">QZ-001 drops to your phone first.<br>Nothing before then.</p>
+  </div>
+</main>
+
+<footer>
+  <p class="footer-copy">© Lorium MMXXV — loriumarchive.com</p>
+  <nav class="footer-links" aria-label="Footer navigation">
+    <a href="https://instagram.com/lorium.archive" target="_blank" rel="noopener">@lorium.archive</a>
+    <a href="/privacy.html">Privacy</a>
+  </nav>
+</footer>
+
+<script>
+  // ── CONFIG ─────────────────────────────────────────────────────────
+  // Paste your deployed Twilio Function base URL here (no trailing slash).
+  // e.g. "https://lorium-sms-1234.twil.io"
+  // Until set, the form runs in DEMO mode: it validates + shows the
+  // success state but does NOT send anything to the backend.
+  const TWILIO_BASE_URL = "https://hello-messaging-5410-d8305j.twil.io";
+  // ───────────────────────────────────────────────────────────────────
+
+  const form    = document.getElementById('signup-form');
+  const input   = document.getElementById('phone');
+  const btn     = document.getElementById('submit-btn');
+  const errorEl = document.getElementById('error');
+  const capture = document.getElementById('capture');
+  const success = document.getElementById('success');
+  const counter = document.getElementById('counter');
+
+  // Source tracking from URL (?src=nfc|dm|story|personal). Default: bio.
+  const params = new URLSearchParams(window.location.search);
+  const source = (params.get('src') || 'bio').toLowerCase().replace(/[^a-z0-9_-]/g, '').slice(0, 20) || 'bio';
+
+  function showError(msg) {
+    errorEl.textContent = msg;
+    errorEl.classList.add('show');
+  }
+  function clearError() {
+    errorEl.textContent = '';
+    errorEl.classList.remove('show');
+  }
+
+  // Normalize US input to E.164 (+1XXXXXXXXXX). Returns null if invalid.
+  function toE164(raw) {
+    const digits = (raw || '').replace(/\D/g, '');
+    if (digits.length === 10) return '+1' + digits;
+    if (digits.length === 11 && digits.startsWith('1')) return '+' + digits;
+    return null;
+  }
+
+  // Live counter (graceful: hides on any failure, keeps static fallback otherwise)
+  async function loadCount() {
+    if (!TWILIO_BASE_URL) return; // keep the static "47 / 50" in demo mode
+    try {
+      const res = await fetch(TWILIO_BASE_URL + '/sms-count');
+      const data = await res.json();
+      if (data && typeof data.count === 'number') {
+        counter.innerHTML = '<strong>' + data.count + ' / 50</strong> slots claimed — production locked at capacity';
+      } else {
+        counter.classList.add('hidden');
+      }
+    } catch (_) {
+      counter.classList.add('hidden');
+    }
+  }
+  loadCount();
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    clearError();
+
+    const phone = toE164(input.value);
+    if (!phone) {
+      showError('Enter a valid US number');
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = '···';
+
+    try {
+      if (TWILIO_BASE_URL) {
+        const res = await fetch(TWILIO_BASE_URL + '/sms-signup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: new URLSearchParams({ phone, source }).toString()
+        });
+        if (!res.ok) throw new Error('signup failed');
+      }
+      // Success state — authoritative, no thank-you.
+      capture.style.display = 'none';
+      success.classList.add('show');
+    } catch (err) {
+      btn.disabled = false;
+      btn.textContent = 'Enter';
+      showError('Something broke. Try again.');
+    }
+  });
+</script>
+
+</body>
+</html>
