@@ -385,11 +385,12 @@
 
 <script>
   // ── CONFIG ─────────────────────────────────────────────────────────
-  // Paste your deployed Twilio Function base URL here (no trailing slash).
-  // e.g. "https://lorium-sms-1234.twil.io"
-  // Until set, the form runs in DEMO mode: it validates + shows the
-  // success state but does NOT send anything to the backend.
-  const TWILIO_BASE_URL = "https://hello-messaging-5410-d8305j.twil.io";
+  // Deployed Twilio Functions service (lorium-sms). Empty = DEMO mode.
+  const TWILIO_BASE_URL = "https://lorium-sms-5973.twil.io";
+  // LIVE_COUNTER: when true, the counter shows the real signup count from
+  // /sms-count. When false, it keeps the static "47 / 50" social-proof
+  // number below. Flip to true once real signups approach that figure.
+  const LIVE_COUNTER = false;
   // ───────────────────────────────────────────────────────────────────
 
   const form    = document.getElementById('signup-form');
@@ -423,7 +424,7 @@
 
   // Live counter (graceful: hides on any failure, keeps static fallback otherwise)
   async function loadCount() {
-    if (!TWILIO_BASE_URL) return; // keep the static "47 / 50" in demo mode
+    if (!TWILIO_BASE_URL || !LIVE_COUNTER) return; // keep the static "47 / 50"
     try {
       const res = await fetch(TWILIO_BASE_URL + '/sms-count');
       const data = await res.json();
