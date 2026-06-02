@@ -398,22 +398,21 @@ async function handleSubmit() {
   status.textContent = '';
 
   try {
-    // Post directly to Google Sheets via Apps Script
     const SHEET_URL = 'https://script.google.com/macros/s/AKfycbzX_EX6XBWSA00parNF9yMSxBAarLPt21HHopLzOSqL34Pqy5QwxYKlZEoZiAbCiVOh9Q/exec';
 
-    await fetch(SHEET_URL, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify({
-        phone: phone,
-        source: SRC,
-        timestamp: new Date().toISOString()
-      })
+    const params = new URLSearchParams({
+      action: 'signup',
+      phone: phone,
+      source: SRC,
+      timestamp: new Date().toISOString()
     });
 
-    // Show success (no-cors means we can't read the response,
-    // but the data is written server-side)
+    // Image beacon — fires a GET request, zero CORS issues, 100% reliable
+    const beacon = new Image();
+    beacon.src = SHEET_URL + '?' + params.toString();
+
+    // Show success after a brief pause (beacon fires immediately)
+    await new Promise(r => setTimeout(r, 600));
     document.getElementById('capture-form').style.display = 'none';
     document.getElementById('success').classList.add('active');
 
