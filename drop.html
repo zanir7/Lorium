@@ -67,40 +67,28 @@
   /* Container */
   .capture {
     width: 100%;
-    max-width: 400px;
+    max-width: 540px;
     opacity: 0;
     animation: enter 1s ease forwards 0.1s;
   }
 
   /* Brand mark */
   .mark {
-    font-size: 0.55rem;
-    letter-spacing: 0.4em;
-    color: var(--muted);
+    font-size: 0.6rem;
+    letter-spacing: 0.45em;
+    color: var(--muted-light);
     text-transform: uppercase;
-    margin-bottom: 2.5rem;
-  }
-
-  /* Product image */
-  .artifact-img {
-    width: 100%;
-    aspect-ratio: 1 / 1;
-    object-fit: cover;
-    border: 1px solid var(--border);
-    margin-bottom: 1.5rem;
-    opacity: 0;
-    animation: enter 1.2s ease forwards 0.3s;
-    filter: contrast(1.02) brightness(0.95);
+    margin-bottom: 3rem;
   }
 
   .tag {
-    font-size: 0.42rem;
-    letter-spacing: 0.25em;
+    font-size: 0.44rem;
+    letter-spacing: 0.3em;
     color: var(--muted);
     text-transform: uppercase;
-    margin-bottom: 2.5rem;
+    margin-bottom: 2.25rem;
     opacity: 0;
-    animation: enter 1s ease forwards 0.45s;
+    animation: enter 1s ease forwards 0.3s;
   }
 
   /* Divider */
@@ -118,23 +106,29 @@
     font-family: 'Cormorant Garamond', serif;
     font-weight: 300;
     font-style: italic;
-    font-size: 1.4rem;
-    line-height: 1.45;
+    font-size: clamp(2.1rem, 5.5vw, 2.9rem);
+    line-height: 1.22;
+    letter-spacing: -0.01em;
     color: var(--fg);
-    margin-bottom: 0.6rem;
+    margin-bottom: 1.5rem;
     opacity: 0;
-    animation: enter 1s ease forwards 0.6s;
+    animation: enter 1s ease forwards 0.45s;
+  }
+
+  .hook em {
+    font-style: italic;
+    color: var(--muted);
   }
 
   .subhook {
-    font-size: 0.46rem;
-    letter-spacing: 0.15em;
+    font-size: 0.5rem;
+    letter-spacing: 0.18em;
     color: var(--muted-light);
     text-transform: uppercase;
-    line-height: 1.9;
-    margin-bottom: 2rem;
+    line-height: 2;
+    margin-bottom: 2.5rem;
     opacity: 0;
-    animation: enter 1s ease forwards 0.75s;
+    animation: enter 1s ease forwards 0.6s;
   }
 
   /* Form */
@@ -203,7 +197,7 @@
     min-height: 1rem;
   }
 
-  /* Counter */
+  /* Closing brand note */
   .list-count {
     margin-top: 1.5rem;
     padding-top: 1rem;
@@ -214,11 +208,6 @@
     text-transform: uppercase;
     opacity: 0;
     animation: enter 1s ease forwards 1s;
-  }
-
-  .list-count span {
-    color: var(--fg);
-    font-weight: 700;
   }
 
   /* Success */
@@ -292,10 +281,10 @@
     to { opacity: 1; transform: translateY(0); }
   }
 
-  /* Short screens: hide image so form stays visible */
+  /* Short screens: tighten spacing so form stays visible */
   @media (max-height: 680px) {
-    .artifact-img { display: none; }
     .mark { margin-bottom: 1.5rem; }
+    .hook { font-size: clamp(1.8rem, 5vw, 2.3rem); }
   }
 
   @media (max-width: 420px) {
@@ -308,19 +297,11 @@
 <div class="capture" id="capture-form">
   <p class="mark">Lorium</p>
 
-  <img
-    src="https://loriumarchive.com/IMG_9505.PNG"
-    alt="QZ-001 detail"
-    class="artifact-img"
-    loading="eager"
-    fetchpriority="high"
-  >
-
   <p class="tag">QZ-001 / Collection One / Limited Production</p>
 
   <div class="rule"></div>
 
-  <p class="hook">Most quarter zips look wrong on most men. This one doesn't.</p>
+  <p class="hook">Cut once, then closed.</p>
   <p class="subhook">Enter your number. You'll hear from us once, on drop day.</p>
 
   <div class="form-block">
@@ -329,7 +310,7 @@
         type="tel"
         class="phone-input"
         id="phone"
-        placeholder="+1 (___) ___-____"
+        placeholder="+1 (___) ___ ____"
         aria-label="Phone number"
         autocomplete="tel"
         inputmode="tel"
@@ -339,10 +320,7 @@
     <p class="form-note">One text. Drop day. Nothing else.</p>
     <p class="form-status" id="status"></p>
 
-    <!-- Social proof / scarcity signal — update this number manually or via API -->
-    <div class="list-count">
-      <span id="count-num">47</span> / 50 slots claimed — production locked at capacity
-    </div>
+    <div class="list-count">Quietly made.</div>
   </div>
 </div>
 
@@ -374,7 +352,7 @@ phoneInput.addEventListener('input', function(e) {
   if (val.length === 0) e.target.value = '';
   else if (val.length <= 3) e.target.value = '+1 (' + val;
   else if (val.length <= 6) e.target.value = '+1 (' + val.substring(0,3) + ') ' + val.substring(3);
-  else e.target.value = '+1 (' + val.substring(0,3) + ') ' + val.substring(3,6) + '-' + val.substring(6,10);
+  else e.target.value = '+1 (' + val.substring(0,3) + ') ' + val.substring(3,6) + ' ' + val.substring(6,10);
 });
 
 phoneInput.addEventListener('keydown', function(e) {
