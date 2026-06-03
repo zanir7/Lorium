@@ -459,6 +459,119 @@
     text-align: center;
   }
 
+  /* CATALOG */
+  .catalog {
+    padding: 8rem 2.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .catalog-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 1.5rem;
+    padding-bottom: 1.5rem;
+    margin-bottom: 3.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .catalog-title {
+    font-family: 'Vogue', 'Cormorant Garamond', serif;
+    font-weight: 400;
+    font-size: clamp(1.9rem, 3.8vw, 3rem);
+    letter-spacing: 0.02em;
+    color: var(--fg);
+    line-height: 1;
+  }
+
+  .catalog-count {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.5rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  .catalog-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(380px, 480px));
+    gap: 4rem;
+  }
+
+  .catalog-card {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .catalog-media {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .catalog-media img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .catalog-body {
+    padding: 1.5rem 0 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+  }
+
+  .catalog-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 1rem;
+  }
+
+  .catalog-name {
+    font-family: 'Vogue', 'Cormorant Garamond', serif;
+    font-weight: 400;
+    font-size: 1.6rem;
+    letter-spacing: 0.02em;
+    color: var(--fg);
+    line-height: 1;
+  }
+
+  .catalog-price {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    color: var(--fg);
+    white-space: nowrap;
+  }
+
+  .catalog-sub {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.5rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .catalog-checkout {
+    margin-top: 0.5rem;
+    display: block;
+    text-align: center;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--bg);
+    background: var(--fg);
+    padding: 0.95rem 1.5rem;
+    text-decoration: none;
+    transition: opacity 0.3s ease;
+  }
+
+  .catalog-checkout:hover { opacity: 0.75; }
+
   /* BRAND STORY */
   .story-section {
     padding: 8rem 2.5rem;
@@ -646,6 +759,12 @@
 
     .pillar-grid { grid-template-columns: 1fr; }
 
+    .catalog { padding: 5rem 1.75rem; }
+    .catalog-grid {
+      grid-template-columns: 1fr;
+      gap: 2.5rem;
+    }
+
     .sms-strip {
       flex-direction: column;
       align-items: flex-start;
@@ -670,6 +789,7 @@
 <nav class="site-nav">
   <ul class="nav-links">
     <li><a href="#product">QZ—001</a></li>
+    <li><a href="#shop">Shop</a></li>
     <li><a href="/philosophy">Philosophy</a></li>
     <li><a href="/drop">Drop</a></li>
   </ul>
@@ -778,6 +898,30 @@
   <div class="product-visual reveal reveal-delay">
     <img src="IMG_9505.PNG" alt="Lorium QZ-001 quarter zip with custom cast-metal triangular zipper pull, 400 GSM heavyweight fleece, collegiate chest embroidery, Kelly Green. Photographed in Miami.">
     <p class="product-caption">QZ — 001 · Sample · Collection One · MMXXV · Miami, FL</p>
+  </div>
+</section>
+
+<!-- CATALOG -->
+<section class="catalog" id="shop">
+  <div class="catalog-head">
+    <h2 class="catalog-title">The Archive</h2>
+    <span class="catalog-count">Collection One · 01 of 01</span>
+  </div>
+  <div class="catalog-grid">
+    <article class="catalog-card">
+      <div class="catalog-media">
+        <img src="qz-001.png" alt="Lorium QZ-001 quarter zip in forest green with custom cast-metal triangular zipper pull and collegiate chest embroidery, laid flat.">
+      </div>
+      <div class="catalog-body">
+        <div class="catalog-row">
+          <h3 class="catalog-name">QZ—001</h3>
+          <span class="catalog-price">$150</span>
+        </div>
+        <span class="catalog-sub">Quarter Zip · Forest Green</span>
+        <!-- TODO: replace href="#" with the Stripe pre-order checkout link -->
+        <a href="#" class="catalog-checkout" aria-label="Checkout QZ-001, 150 dollars">Checkout →</a>
+      </div>
+    </article>
   </div>
 </section>
 
