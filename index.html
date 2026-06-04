@@ -523,28 +523,14 @@
     gap: 0.85rem;
   }
 
-  .catalog-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    gap: 1rem;
-  }
-
   .catalog-name {
-    font-family: 'Vogue', 'Cormorant Garamond', serif;
+    font-family: 'Space Mono', monospace;
     font-weight: 400;
-    font-size: 1.6rem;
-    letter-spacing: 0.02em;
+    font-size: 0.95rem;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
     color: var(--fg);
     line-height: 1;
-  }
-
-  .catalog-price {
-    font-family: 'Space Mono', monospace;
-    font-size: 0.72rem;
-    letter-spacing: 0.08em;
-    color: var(--fg);
-    white-space: nowrap;
   }
 
   .catalog-sub {
@@ -789,7 +775,7 @@
 <nav class="site-nav">
   <ul class="nav-links">
     <li><a href="#product">QZ—001</a></li>
-    <li><a href="#shop">Shop</a></li>
+    <li><a href="#archive">Archive</a></li>
     <li><a href="/philosophy">Philosophy</a></li>
     <li><a href="/drop">Drop</a></li>
   </ul>
@@ -902,7 +888,7 @@
 </section>
 
 <!-- CATALOG -->
-<section class="catalog" id="shop">
+<section class="catalog" id="archive">
   <div class="catalog-head">
     <h2 class="catalog-title">The Archive</h2>
     <span class="catalog-count">Collection One · 01 of 01</span>
@@ -913,13 +899,9 @@
         <img src="qz-001.png" alt="Lorium QZ-001 quarter zip in forest green with custom cast-metal triangular zipper pull and collegiate chest embroidery, laid flat.">
       </div>
       <div class="catalog-body">
-        <div class="catalog-row">
-          <h3 class="catalog-name">QZ—001</h3>
-          <span class="catalog-price">$150</span>
-        </div>
+        <h3 class="catalog-name">QZ—001</h3>
         <span class="catalog-sub">Quarter Zip · Forest Green</span>
-        <!-- TODO: replace href="#" with the Stripe pre-order checkout link -->
-        <a href="#" class="catalog-checkout" aria-label="Checkout QZ-001, 150 dollars">Checkout →</a>
+        <a href="/drop" class="catalog-checkout" aria-label="QZ-001 drop access">Drop →</a>
       </div>
     </article>
   </div>
