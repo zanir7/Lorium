@@ -773,6 +773,148 @@
     .manifesto { padding: 5rem 1.5rem; }
     footer { padding: 1.5rem; flex-direction: column; align-items: flex-start; }
   }
+
+  /* SMS CAPTURE MODAL */
+  .lm-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    background: rgba(14, 14, 14, 0.55);
+    -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(4px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.45s ease;
+  }
+  .lm-overlay.open { opacity: 1; pointer-events: auto; }
+
+  .lm-modal {
+    position: relative;
+    width: 100%;
+    max-width: 460px;
+    background: var(--bg);
+    border: 1px solid var(--border-mid);
+    padding: 3rem 2.5rem 2.5rem;
+    transform: translateY(18px);
+    transition: transform 0.5s ease;
+  }
+  .lm-overlay.open .lm-modal { transform: translateY(0); }
+
+  .lm-close {
+    position: absolute;
+    top: 0.9rem;
+    right: 1rem;
+    width: 2rem;
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-size: 1.2rem;
+    line-height: 1;
+    transition: color 0.3s ease;
+  }
+  .lm-close:hover { color: var(--fg); }
+
+  .lm-eyebrow {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.5rem;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 1.25rem;
+  }
+  .lm-title {
+    font-family: 'Vogue', 'Cormorant Garamond', serif;
+    font-weight: 400;
+    font-size: clamp(1.9rem, 5vw, 2.4rem);
+    line-height: 1.12;
+    letter-spacing: 0.01em;
+    color: var(--fg);
+    margin-bottom: 0.9rem;
+  }
+  .lm-sub {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 1.05rem;
+    font-weight: 300;
+    color: var(--muted-light);
+    line-height: 1.5;
+    margin-bottom: 1.75rem;
+  }
+  .lm-row {
+    display: flex;
+    border: 1px solid var(--border-mid);
+  }
+  .lm-input {
+    flex: 1;
+    min-width: 0;
+    background: none;
+    border: none;
+    outline: none;
+    padding: 0.95rem 1rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.8rem;
+    letter-spacing: 0.05em;
+    color: var(--fg);
+  }
+  .lm-input::placeholder { color: var(--muted); letter-spacing: 0.05em; }
+  .lm-submit {
+    flex-shrink: 0;
+    background: var(--fg);
+    color: var(--bg);
+    border: none;
+    padding: 0 1.6rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    transition: opacity 0.3s ease;
+  }
+  .lm-submit:hover { opacity: 0.8; }
+  .lm-submit:disabled { opacity: 0.4; }
+  .lm-note {
+    margin-top: 0.9rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.48rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .lm-status {
+    margin-top: 0.6rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.5rem;
+    letter-spacing: 0.12em;
+    color: var(--muted-light);
+    min-height: 0.7rem;
+  }
+
+  .lm-success { display: none; }
+  .lm-modal.done .lm-form { display: none; }
+  .lm-modal.done .lm-success { display: block; }
+  .lm-success-mark {
+    font-family: 'Vogue', 'Cormorant Garamond', serif;
+    font-weight: 400;
+    font-size: 2.2rem;
+    letter-spacing: 0.02em;
+    color: var(--fg);
+    margin-bottom: 1rem;
+  }
+  .lm-success-sub {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 1.05rem;
+    font-weight: 300;
+    color: var(--muted-light);
+    line-height: 1.6;
+  }
 </style>
 </head>
 <body>
@@ -989,6 +1131,129 @@
       });
     }
   }
+</script>
+
+<!-- SMS CAPTURE MODAL (homepage) -->
+<div class="lm-overlay" id="lm-overlay" role="dialog" aria-modal="true" aria-label="Join the QZ-001 drop list">
+  <div class="lm-modal" id="lm-modal">
+    <button class="lm-close" id="lm-close" aria-label="Close">&times;</button>
+
+    <div class="lm-form" id="lm-form">
+      <p class="lm-eyebrow">QZ-001 / First Access</p>
+      <h2 class="lm-title">Cut once,<br>then closed.</h2>
+      <p class="lm-sub">Enter your number. You'll hear from us once, on drop day.</p>
+      <div class="lm-row">
+        <input
+          type="tel"
+          class="lm-input"
+          id="lm-phone"
+          placeholder="+1 (___) ___ ____"
+          aria-label="Phone number"
+          autocomplete="tel"
+          inputmode="tel"
+        >
+        <button class="lm-submit" id="lm-submit">Enter</button>
+      </div>
+      <p class="lm-note">One text. Drop day. Nothing else.</p>
+      <p class="lm-status" id="lm-status"></p>
+    </div>
+
+    <div class="lm-success">
+      <p class="lm-success-mark">You're in.</p>
+      <p class="lm-success-sub">When QZ-001 goes live,<br>your phone knows first.<br>Nothing before then. Nothing after.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Homepage SMS capture — reuses the exact /drop submission flow.
+  // Same endpoint, same payload shape, same validation, same image beacon.
+  // The ONLY difference is source: 'homepage' (vs /drop's src param).
+  (function () {
+    var STORAGE_KEY = 'lorium_sms_v1';
+    var overlay   = document.getElementById('lm-overlay');
+    var modal     = document.getElementById('lm-modal');
+    var closeBtn  = document.getElementById('lm-close');
+    var phoneInput = document.getElementById('lm-phone');
+    var submitBtn = document.getElementById('lm-submit');
+    var status    = document.getElementById('lm-status');
+
+    function alreadyDone() {
+      try { return localStorage.getItem(STORAGE_KEY) === '1'; } catch (e) { return false; }
+    }
+    function markDone() {
+      try { localStorage.setItem(STORAGE_KEY, '1'); } catch (e) {}
+    }
+
+    function openModal() {
+      if (alreadyDone()) return;
+      overlay.classList.add('open');
+    }
+    function closeModal() { overlay.classList.remove('open'); }
+    function dismiss() { markDone(); closeModal(); }
+
+    // Appear 3s after load, unless already dismissed or signed up.
+    if (!alreadyDone()) { setTimeout(openModal, 3000); }
+
+    // Dismiss: X button, click-outside, Escape.
+    closeBtn.addEventListener('click', dismiss);
+    overlay.addEventListener('click', function (e) { if (e.target === overlay) dismiss(); });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && overlay.classList.contains('open')) dismiss();
+    });
+
+    // Phone formatting — identical to /drop.
+    phoneInput.addEventListener('input', function (e) {
+      var val = e.target.value.replace(/\D/g, '');
+      if (val.startsWith('1') && val.length > 1) val = val.substring(1);
+      if (val.length === 0) e.target.value = '';
+      else if (val.length <= 3) e.target.value = '+1 (' + val;
+      else if (val.length <= 6) e.target.value = '+1 (' + val.substring(0,3) + ') ' + val.substring(3);
+      else e.target.value = '+1 (' + val.substring(0,3) + ') ' + val.substring(3,6) + ' ' + val.substring(6,10);
+    });
+    phoneInput.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') handleSubmit();
+    });
+    submitBtn.addEventListener('click', handleSubmit);
+
+    async function handleSubmit() {
+      var raw = phoneInput.value.replace(/\D/g, '');
+      var digits = raw.startsWith('1') ? raw.substring(1) : raw;
+      if (digits.length !== 10) {
+        status.textContent = 'Enter a valid number.';
+        return;
+      }
+
+      var phone = '+1' + digits;
+      submitBtn.textContent = '...';
+      submitBtn.disabled = true;
+      status.textContent = '';
+
+      try {
+        const SHEET_URL = 'https://script.google.com/macros/s/AKfycbzX_EX6XBWSA00parNF9yMSxBAarLPt21HHopLzOSqL34Pqy5QwxYKlZEoZiAbCiVOh9Q/exec';
+
+        const params = new URLSearchParams({
+          action: 'signup',
+          phone: phone,
+          source: 'homepage',
+          timestamp: new Date().toISOString()
+        });
+
+        // Image beacon — fires a GET request, zero CORS issues, 100% reliable
+        const beacon = new Image();
+        beacon.src = SHEET_URL + '?' + params.toString();
+
+        await new Promise(r => setTimeout(r, 600));
+        markDone();
+        modal.classList.add('done');
+
+      } catch (err) {
+        status.textContent = 'Something went wrong. Try again.';
+        submitBtn.textContent = 'Enter';
+        submitBtn.disabled = false;
+      }
+    }
+  })();
 </script>
 
 </body>
