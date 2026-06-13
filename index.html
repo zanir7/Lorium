@@ -783,17 +783,30 @@
     align-items: center;
     justify-content: center;
     padding: 1.5rem;
-    background: rgba(14, 14, 14, 0.55);
-    -webkit-backdrop-filter: blur(4px);
-    backdrop-filter: blur(4px);
+    background: transparent;
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.45s ease;
+    transition: opacity 0.5s ease;
   }
   .lm-overlay.open { opacity: 1; pointer-events: auto; }
 
+  /* Blurred backdrop layer — shows PRODUCT IMAGERY, not the wordmark.
+     Dark wash until a product photo is set on it (see HTML comment). */
+  .lm-bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background-color: #0E0E0E;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    filter: blur(12px) brightness(0.5);
+    transform: scale(1.12);
+  }
+
   .lm-modal {
     position: relative;
+    z-index: 1;
     width: 100%;
     max-width: 460px;
     background: var(--bg);
@@ -870,22 +883,24 @@
     background: var(--fg);
     color: var(--bg);
     border: none;
-    padding: 0 1.6rem;
+    padding: 0 1.4rem;
     font-family: 'Space Mono', monospace;
     font-size: 0.55rem;
-    letter-spacing: 0.3em;
+    letter-spacing: 0.22em;
     text-transform: uppercase;
+    white-space: nowrap;
     transition: opacity 0.3s ease;
   }
   .lm-submit:hover { opacity: 0.8; }
   .lm-submit:disabled { opacity: 0.4; }
-  .lm-note {
-    margin-top: 0.9rem;
+  .lm-consent {
+    margin-top: 0.85rem;
     font-family: 'Space Mono', monospace;
-    font-size: 0.48rem;
-    letter-spacing: 0.25em;
-    text-transform: uppercase;
+    font-size: 0.46rem;
+    line-height: 1.55;
+    letter-spacing: 0.06em;
     color: var(--muted);
+    opacity: 0.8;
   }
   .lm-status {
     margin-top: 0.6rem;
@@ -914,6 +929,28 @@
     font-weight: 300;
     color: var(--muted-light);
     line-height: 1.6;
+  }
+
+  /* Signed-up inline acknowledgment (quiet, desaturated) */
+  .lm-ack {
+    border-top: 1px solid var(--border);
+    margin-bottom: 2.75rem;
+    padding-top: 1.5rem;
+  }
+  .lm-ack-mark {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--muted-light);
+    margin-bottom: 0.55rem;
+  }
+  .lm-ack-sub {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 1rem;
+    font-weight: 300;
+    color: var(--muted);
   }
 </style>
 </head>
@@ -1040,6 +1077,11 @@
     <h2 class="catalog-title">The Archive</h2>
     <span class="catalog-count">Collection One · 01 of 01</span>
   </div>
+  <!-- Shown only to visitors who already signed up (JS reveals via lorium_sms_state) -->
+  <div class="lm-ack" id="lm-ack" hidden>
+    <p class="lm-ack-mark">Indexed // Collection One</p>
+    <p class="lm-ack-sub">You're on the list. One text, on drop day.</p>
+  </div>
   <div class="catalog-grid">
     <article class="catalog-card">
       <!-- Product photo placeholder — drop a file in the site root and restore this block:
@@ -1134,13 +1176,21 @@
 
 <!-- SMS CAPTURE MODAL (homepage) -->
 <div class="lm-overlay" id="lm-overlay" role="dialog" aria-modal="true" aria-label="Join the QZ-001 drop list">
+  <!--
+    Blurred backdrop = PRODUCT IMAGERY (not the wordmark). Dark wash placeholder
+    until a hero product photo exists. ONE-LINE SWAP when you have one — set an
+    inline background-image on this div, e.g.:
+    <div class="lm-bg" id="lm-bg" style="background-image:url('qz-001.png')"></div>
+  -->
+  <div class="lm-bg" id="lm-bg"></div>
+
   <div class="lm-modal" id="lm-modal">
     <button class="lm-close" id="lm-close" aria-label="Close">&times;</button>
 
     <div class="lm-form" id="lm-form">
       <p class="lm-eyebrow">QZ-001 / First Access</p>
       <h2 class="lm-title">Cut once,<br>then closed.</h2>
-      <p class="lm-sub">Enter your number. You'll hear from us once, on drop day.</p>
+      <p class="lm-sub">One text. Drop day. Nothing else.</p>
       <div class="lm-row">
         <input
           type="tel"
@@ -1151,9 +1201,9 @@
           autocomplete="tel"
           inputmode="tel"
         >
-        <button class="lm-submit" id="lm-submit">Enter</button>
+        <button class="lm-submit" id="lm-submit">Secure Access</button>
       </div>
-      <p class="lm-note">One text. Drop day. Nothing else.</p>
+      <p class="lm-consent">By entering your number you agree to receive marketing texts from Lorium. Msg &amp; data rates may apply. Reply STOP to opt out.</p>
       <p class="lm-status" id="lm-status"></p>
     </div>
 
@@ -1165,43 +1215,74 @@
 </div>
 
 <script>
-  // Homepage SMS capture — reuses the exact /drop submission flow.
-  // Same endpoint, same payload shape, same validation, same image beacon.
-  // The ONLY difference is source: 'homepage' (vs /drop's src param).
+  // Homepage SMS capture — three-state, scroll-triggered.
+  // Submission flow is the EXACT /drop flow: same endpoint, same payload,
+  // same +1 validation, same image beacon. Only difference: source: 'homepage'.
   (function () {
-    var STORAGE_KEY = 'lorium_sms_v1';
-    var overlay   = document.getElementById('lm-overlay');
-    var modal     = document.getElementById('lm-modal');
-    var closeBtn  = document.getElementById('lm-close');
+    var STATE_KEY      = 'lorium_sms_state';        // 'signed_up' | 'dismissed'
+    var DISMISS_AT_KEY = 'lorium_sms_dismissed_at'; // timestamp (ms)
+    var LEGACY_KEY     = 'lorium_sms_v1';           // old single seen-flag
+    var COOLDOWN_MS    = 7 * 24 * 60 * 60 * 1000;   // 7 days
+
+    var overlay    = document.getElementById('lm-overlay');
+    var modal      = document.getElementById('lm-modal');
+    var closeBtn   = document.getElementById('lm-close');
     var phoneInput = document.getElementById('lm-phone');
-    var submitBtn = document.getElementById('lm-submit');
-    var status    = document.getElementById('lm-status');
+    var submitBtn  = document.getElementById('lm-submit');
+    var status     = document.getElementById('lm-status');
+    var ack        = document.getElementById('lm-ack');
 
-    function alreadyDone() {
-      try { return localStorage.getItem(STORAGE_KEY) === '1'; } catch (e) { return false; }
-    }
-    function markDone() {
-      try { localStorage.setItem(STORAGE_KEY, '1'); } catch (e) {}
+    function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+    function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+    function lsDel(k) { try { localStorage.removeItem(k); } catch (e) {} }
+
+    // Migrate the old seen-flag -> treat as a fresh 'dismissed'.
+    if (lsGet(LEGACY_KEY) && !lsGet(STATE_KEY)) {
+      lsSet(STATE_KEY, 'dismissed');
+      lsSet(DISMISS_AT_KEY, String(Date.now()));
+      lsDel(LEGACY_KEY);
     }
 
+    function getState() { return lsGet(STATE_KEY); }
+    function setSignedUp() { lsSet(STATE_KEY, 'signed_up'); lsDel(DISMISS_AT_KEY); }
+    function setDismissed() { lsSet(STATE_KEY, 'dismissed'); lsSet(DISMISS_AT_KEY, String(Date.now())); }
+
+    function dismissedRecently() {
+      var t = parseInt(lsGet(DISMISS_AT_KEY) || '0', 10);
+      return t > 0 && (Date.now() - t) < COOLDOWN_MS;
+    }
+    function eligibleToShow() {
+      var s = getState();
+      if (s === 'signed_up') return false;
+      if (s === 'dismissed') return !dismissedRecently();
+      return true; // new visitor
+    }
+
+    // ---- Open / dismiss ----
+    var opened = false, fallbackTimer = null, io = null;
+    function clearTriggers() {
+      if (fallbackTimer) { clearTimeout(fallbackTimer); fallbackTimer = null; }
+      if (io) { io.disconnect(); io = null; }
+    }
     function openModal() {
-      if (alreadyDone()) return;
+      if (opened || !eligibleToShow()) return;
+      opened = true;
+      clearTriggers();
       overlay.classList.add('open');
     }
     function closeModal() { overlay.classList.remove('open'); }
-    function dismiss() { markDone(); closeModal(); }
+    function dismiss() {
+      if (getState() !== 'signed_up') setDismissed(); // X / outside / Esc without signup
+      closeModal();
+    }
 
-    // Appear 3s after load, unless already dismissed or signed up.
-    if (!alreadyDone()) { setTimeout(openModal, 3000); }
-
-    // Dismiss: X button, click-outside, Escape.
     closeBtn.addEventListener('click', dismiss);
-    overlay.addEventListener('click', function (e) { if (e.target === overlay) dismiss(); });
+    overlay.addEventListener('click', function (e) { if (!modal.contains(e.target)) dismiss(); });
     document.addEventListener('keydown', function (e) {
       if (e.key === 'Escape' && overlay.classList.contains('open')) dismiss();
     });
 
-    // Phone formatting — identical to /drop.
+    // ---- Phone formatting — identical to /drop. ----
     phoneInput.addEventListener('input', function (e) {
       var val = e.target.value.replace(/\D/g, '');
       if (val.startsWith('1') && val.length > 1) val = val.substring(1);
@@ -1243,13 +1324,33 @@
         beacon.src = SHEET_URL + '?' + params.toString();
 
         await new Promise(r => setTimeout(r, 600));
-        markDone();
+        setSignedUp();
         modal.classList.add('done');
 
       } catch (err) {
         status.textContent = 'Something went wrong. Try again.';
-        submitBtn.textContent = 'Enter';
+        submitBtn.textContent = 'Secure Access';
         submitBtn.disabled = false;
+      }
+    }
+
+    // ---- Init by visitor state ----
+    if (getState() === 'signed_up') {
+      if (ack) ack.hidden = false;               // quiet acknowledgment; modal never shows
+    } else if (eligibleToShow()) {
+      // Show once: when the user scrolls to the product section (past the hero),
+      // OR a 6s fallback for a non-scrolling bouncer. Whichever fires first.
+      fallbackTimer = setTimeout(openModal, 6000);
+      var anchor = document.getElementById('product');
+      if (anchor && 'IntersectionObserver' in window) {
+        var armed = false; // only fire after product has been below the fold at least once
+        io = new IntersectionObserver(function (entries) {
+          entries.forEach(function (en) {
+            if (!en.isIntersecting) armed = true;     // product below/above fold — arm it
+            else if (armed) openModal();              // scrolled back into view — fire
+          });
+        }, { threshold: 0.15 });
+        io.observe(anchor);
       }
     }
   })();
