@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { validIdentity } from "../../../../lib/identity";
-import { seal, SESSION_COOKIE, STATE_COOKIE, sessionCookieOptions } from "../../../../lib/session";
+import { persistMailSession, seal, SESSION_COOKIE, STATE_COOKIE, sessionCookieOptions, type MailSession } from "../../../../lib/session";
 
 export const runtime = "nodejs";
 
@@ -61,18 +61,24 @@ export async function GET(request: NextRequest) {
   if (!account) return NextResponse.redirect(`${origin}/?error=domain`);
 
   const email = (account.primaryEmailAddress || account.mailboxAddress || "").toLowerCase();
+  if (email !== identity.session.email.toLowerCase()) {
+    return NextResponse.redirect(`${origin}/?error=mailbox_mismatch`);
+  }
+
+  const mailSession: MailSession = {
+    accessToken: token.access_token,
+    refreshToken: token.refresh_token,
+    expiresAt: Date.now() + (token.expires_in || 3600) * 1000,
+    email,
+    accountId: account.accountId,
+  };
+
+  if (!await persistMailSession(identity.session, mailSession)) {
+    return NextResponse.redirect(`${origin}/?error=storage`);
+  }
+
   const response = NextResponse.redirect(origin);
   response.cookies.delete(STATE_COOKIE);
-  response.cookies.set(
-    SESSION_COOKIE,
-    seal({
-      accessToken: token.access_token,
-      refreshToken: token.refresh_token,
-      expiresAt: Date.now() + (token.expires_in || 3600) * 1000,
-      email,
-      accountId: account.accountId,
-    }),
-    sessionCookieOptions,
-  );
+  response.cookies.set(SESSION_COOKIE, seal(mailSession), sessionCookieOptions);
   return response;
 }
