@@ -1,5 +1,6 @@
 import crypto from "node:crypto";
 import { cookies } from "next/headers";
+import { SUPABASE_KEY, SUPABASE_URL, type IdentitySession } from "./identity";
 
 export type MailSession = {
   accessToken: string;
@@ -56,9 +57,7 @@ export const sessionCookieOptions = {
   maxAge: 60 * 60 * 24 * 30,
 };
 
-export async function validSession(): Promise<{ session: MailSession; refreshed: boolean } | null> {
-  const current = await readSession();
-  if (!current) return null;
+async function refreshSession(current: MailSession): Promise<{ session: MailSession; refreshed: boolean } | null> {
   if (Date.now() < current.expiresAt - 60_000) return { session: current, refreshed: false };
   if (!current.refreshToken) return null;
 
@@ -81,4 +80,55 @@ export async function validSession(): Promise<{ session: MailSession; refreshed:
       expiresAt: Date.now() + (token.expires_in || 3600) * 1000,
     },
   };
+}
+
+export async function validSession() {
+  const current = await readSession();
+  return current ? refreshSession(current) : null;
+}
+
+function connectionHeaders(identity: IdentitySession) {
+  return {
+    apikey: SUPABASE_KEY,
+    Authorization: `Bearer ${identity.accessToken}`,
+    "Content-Type": "application/json",
+  };
+}
+
+export async function persistMailSession(identity: IdentitySession, mail: MailSession) {
+  if (identity.email.toLowerCase() !== mail.email.toLowerCase()) return false;
+  const response = await fetch(
+    `${SUPABASE_URL}/rest/v1/lorium_mail_connections?on_conflict=user_id`,
+    {
+      method: "POST",
+      headers: {
+        ...connectionHeaders(identity),
+        Prefer: "resolution=merge-duplicates",
+      },
+      body: JSON.stringify({
+        user_id: identity.userId,
+        email: mail.email.toLowerCase(),
+        sealed_session: seal(mail),
+        updated_at: new Date().toISOString(),
+      }),
+      cache: "no-store",
+    },
+  );
+  return response.ok;
+}
+
+export async function loadPersistedMailSession(identity: IdentitySession) {
+  const response = await fetch(
+    `${SUPABASE_URL}/rest/v1/lorium_mail_connections?user_id=eq.${encodeURIComponent(identity.userId)}&select=sealed_session&limit=1`,
+    { headers: connectionHeaders(identity), cache: "no-store" },
+  );
+  if (!response.ok) return null;
+  const rows = await response.json() as Array<{ sealed_session?: string }>;
+  const stored = rows[0]?.sealed_session ? unseal(rows[0].sealed_session) : null;
+  if (!stored || stored.email.toLowerCase() !== identity.email.toLowerCase()) return null;
+
+  const current = await refreshSession(stored);
+  if (!current) return null;
+  if (current.refreshed) await persistMailSession(identity, current.session);
+  return current.session;
 }
