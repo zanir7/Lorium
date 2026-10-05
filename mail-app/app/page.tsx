@@ -49,34 +49,19 @@ export default function Mail() {
   const [identityEmail, setIdentityEmail] = useState("");
   const [mailConnected, setMailConnected] = useState(false);
   const [email, setEmail] = useState("");
-  const [login, setLogin] = useState({ email: "", password: "" });
-  const [loginError, setLoginError] = useState("");
-  const [loggingIn, setLoggingIn] = useState(false);
-  const [recoveryMode, setRecoveryMode] = useState(false);
-  const [recoveryToken, setRecoveryToken] = useState("");
-  const [resetPassword, setResetPassword] = useState("");
-  const [recoveryStatus, setRecoveryStatus] = useState("");
   const [mail, setMail] = useState<MailData>({});
   const [activeFolder, setActiveFolder] = useState("inbox");
   const [selected, setSelected] = useState<Message | null>(null);
   const [messageBody, setMessageBody] = useState("");
   const [compose, setCompose] = useState(false);
   const [draft, setDraft] = useState({ to: "", subject: "", content: "" });
+  const [draftReady, setDraftReady] = useState(false);
   const [sending, setSending] = useState(false);
   const [notice, setNotice] = useState("");
 
   const messages = useMemo(() => mail.messages || [], [mail]);
 
   useEffect(() => {
-    const fragment = new URLSearchParams(window.location.hash.replace(/^#/, ""));
-    if (fragment.get("type") === "recovery" && fragment.get("access_token")) {
-      setRecoveryToken(fragment.get("access_token") || "");
-      setRecoveryMode(true);
-      window.history.replaceState({}, "", window.location.pathname);
-      setLoading(false);
-      return;
-    }
-
     fetch("/api/auth/me", { cache: "no-store" })
       .then(async (response) => {
         if (!response.ok) throw new Error();
@@ -96,87 +81,43 @@ export default function Mail() {
       .finally(() => setLoading(false));
   }, []);
 
-  async function signInLorium(event: React.FormEvent) {
-    event.preventDefault();
-    if (!login.email || !login.password) return;
-    setLoggingIn(true);
-    setLoginError("");
+  useEffect(() => {
     try {
-      const response = await fetch("/api/auth/lorium", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(login),
-      });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error || "Unable to verify Lorium identity.");
-      setIdentityEmail(data.email || login.email);
-      setLogin({ email: "", password: "" });
-
-      const statusResponse = await fetch("/api/auth/me", { cache: "no-store" });
-      const status = await statusResponse.json();
-      const connected = statusResponse.ok && Boolean(status.mailConnected);
-      setMailConnected(connected);
-      if (connected) {
-        setEmail(status.mailEmail || status.email || data.email || login.email);
-        await loadFolder("inbox");
-      }
-    } catch (error) {
-      setLoginError(error instanceof Error ? error.message.toUpperCase() : "ACCESS DENIED");
-    } finally {
-      setLoggingIn(false);
-    }
-  }
-
-  async function requestRecovery() {
-    if (!login.email) {
-      setLoginError("ENTER YOUR LORIUM EMAIL FIRST");
-      return;
-    }
-    setLoginError("");
-    setRecoveryStatus("SENDING RECOVERY LINK");
-    try {
-      await fetch("/api/auth/recover", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: login.email }),
-      });
-      setRecoveryStatus("CHECK YOUR EMAIL · RECOVERY LINK SENT");
+      const saved = window.localStorage.getItem("lorium-mail-draft");
+      if (saved) setDraft(JSON.parse(saved));
     } catch {
-      setRecoveryStatus("UNABLE TO SEND RECOVERY LINK");
+      // A damaged local draft should never stop the inbox from opening.
+    } finally {
+      setDraftReady(true);
     }
-  }
+  }, []);
 
-  async function completeRecovery(event: React.FormEvent) {
-    event.preventDefault();
-    setRecoveryStatus("");
-    const response = await fetch("/api/auth/reset", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ accessToken: recoveryToken, password: resetPassword }),
-    });
-    const data = await response.json();
-    if (!response.ok) {
-      setRecoveryStatus((data.error || "UNABLE TO RESET PASSWORD").toUpperCase());
-      return;
-    }
-    setRecoveryMode(false);
-    setRecoveryToken("");
-    setResetPassword("");
-    setRecoveryStatus("PASSWORD UPDATED · ENTER LORIUM");
-  }
+  useEffect(() => {
+    if (!draftReady) return;
+    const hasDraft = Boolean(draft.to || draft.subject || draft.content);
+    if (hasDraft) window.localStorage.setItem("lorium-mail-draft", JSON.stringify(draft));
+    else window.localStorage.removeItem("lorium-mail-draft");
+  }, [draft, draftReady]);
 
   async function loadFolder(name: string) {
     setActiveFolder(name);
     setSelected(null);
     setMessageBody("");
-    const response = await fetch(`/api/mail/messages?folder=${encodeURIComponent(name)}`, { cache: "no-store" });
-    if (response.status === 401) {
-      setMailConnected(false);
-      return;
+    try {
+      const response = await fetch(`/api/mail/messages?folder=${encodeURIComponent(name)}`, { cache: "no-store" });
+      if (response.status === 401) {
+        setIdentityEmail("");
+        setMailConnected(false);
+        setEmail("");
+        return;
+      }
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Unable to retrieve correspondence.");
+      setMail(data);
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message.toUpperCase() : "MAIL TEMPORARILY UNAVAILABLE");
+      window.setTimeout(() => setNotice(""), 3500);
     }
-    const data = await response.json();
-    if (!response.ok) throw new Error(data.error || "Unable to retrieve correspondence.");
-    setMail(data);
   }
 
   async function openMessage(message: Message) {
@@ -184,13 +125,20 @@ export default function Mail() {
     setMessageBody("Retrieving correspondence…");
     const folderId = message.folderId || mail.folder?.id;
     if (!folderId) return setMessageBody(message.summary || "");
-    const response = await fetch(
-      `/api/mail/messages?folderId=${encodeURIComponent(folderId)}&messageId=${encodeURIComponent(message.messageId)}`,
-      { cache: "no-store" },
-    );
-    const data = await response.json();
-    const content = data?.data?.content || data?.data?.messageContent || message.summary || "";
-    setMessageBody(htmlToText(String(content)));
+    try {
+      const response = await fetch(
+        `/api/mail/messages?folderId=${encodeURIComponent(folderId)}&messageId=${encodeURIComponent(message.messageId)}`,
+        { cache: "no-store" },
+      );
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Unable to retrieve message.");
+      const content = data?.data?.content || data?.data?.messageContent || message.summary || "";
+      setMessageBody(htmlToText(String(content)));
+    } catch (error) {
+      setMessageBody(message.summary || "MESSAGE TEMPORARILY UNAVAILABLE");
+      setNotice(error instanceof Error ? error.message.toUpperCase() : "MESSAGE TEMPORARILY UNAVAILABLE");
+      window.setTimeout(() => setNotice(""), 3500);
+    }
   }
 
   function beginReply() {
@@ -214,6 +162,12 @@ export default function Mail() {
         body: JSON.stringify(draft),
       });
       const data = await response.json();
+      if (response.status === 401) {
+        setIdentityEmail("");
+        setMailConnected(false);
+        setEmail("");
+        throw new Error("Session expired. Sign in again; your draft is saved.");
+      }
       if (!response.ok) throw new Error(data.error || "Transmission failed.");
       setCompose(false);
       setDraft({ to: "", subject: "", content: "" });
@@ -237,29 +191,6 @@ export default function Mail() {
 
   if (loading) {
     return <main className="gate"><div className="gate-inner"><div className="wordmark">LORIUM</div><div className="lightline"/><p>OPENING ARCHIVE</p></div></main>;
-  }
-
-  if (recoveryMode) {
-    return (
-      <main className="gate">
-        <div className="ambient" />
-        <form className="gate-inner identity-form" onSubmit={completeRecovery}>
-          <div className="wordmark">LORIUM</div>
-          <span className="index">IDENTITY / RECOVERY</span>
-          <div className="lightline" />
-          <p className="quiet">CHOOSE A NEW LORIUM PASSWORD.</p>
-          <label className="identity-field">
-            <span>NEW PASSWORD</span>
-            <input type="password" minLength={8} autoComplete="new-password" value={resetPassword} onChange={(e) => setResetPassword(e.target.value)} />
-          </label>
-          <button className="enter identity-enter" type="submit" disabled={resetPassword.length < 8}>
-            <span>UPDATE PASSWORD</span><i />
-          </button>
-          {recoveryStatus && <p className="identity-error">{recoveryStatus}</p>}
-          <small>PRIVATE / LORIUM IDENTITY</small>
-        </form>
-      </main>
-    );
   }
 
   if (!identityEmail) {
@@ -306,7 +237,7 @@ export default function Mail() {
       </header>
 
       <aside className="rail">
-        <button className="new" onClick={() => { setDraft({to:"",subject:"",content:""}); setCompose(true); }}>NEW CORRESPONDENCE <span>+</span></button>
+        <button className="new" onClick={() => setCompose(true)}>NEW CORRESPONDENCE <span>+</span></button>
         <nav>
           {["inbox", "sent", "drafts", "archive"].map((name) => (
             <button key={name} className={activeFolder === name ? "active" : ""} onClick={() => loadFolder(name)}>
