@@ -17,7 +17,7 @@ export async function GET() {
     client_id: clientId,
     response_type: "code",
     redirect_uri: redirectUri,
-    scope: "ZohoMail.accounts.READ,ZohoMail.folders.READ,ZohoMail.messages.ALL",
+    scope: "ZohoMail.accounts.READ,ZohoMail.folders.READ,ZohoMail.messages.READ,ZohoMail.messages.CREATE",
     access_type: "offline",
     prompt: "consent",
     state,
