@@ -1,16 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { validIdentity } from "../../../../lib/identity";
 import { SESSION_COOKIE, seal, sessionCookieOptions, validSession } from "../../../../lib/session";
 
 export const runtime = "nodejs";
 
 export async function POST(request: NextRequest) {
-  const identity = await validIdentity();
-  if (!identity) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   const result = await validSession();
-  if (!result || result.session.email.toLowerCase() !== identity.session.email.toLowerCase()) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  if (!result) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const body = await request.json() as { to?: string; subject?: string; content?: string };
   const to = (body.to || "").trim();
