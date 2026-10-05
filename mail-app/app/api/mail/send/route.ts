@@ -8,7 +8,9 @@ export async function POST(request: NextRequest) {
   const identity = await validIdentity();
   if (!identity) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   const result = await validSession();
-  if (!result) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!result || result.session.email.toLowerCase() !== identity.session.email.toLowerCase()) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
   const body = await request.json() as { to?: string; subject?: string; content?: string };
   const to = (body.to || "").trim();
