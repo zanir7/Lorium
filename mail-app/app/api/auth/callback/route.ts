@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { validIdentity } from "../../../../lib/identity";
-import { persistMailSession, seal, SESSION_COOKIE, STATE_COOKIE, sessionCookieOptions, type MailSession } from "../../../../lib/session";
+import { seal, SESSION_COOKIE, STATE_COOKIE, sessionCookieOptions, type MailSession } from "../../../../lib/session";
 
 export const runtime = "nodejs";
 
@@ -13,8 +12,6 @@ type Account = {
 
 export async function GET(request: NextRequest) {
   const origin = process.env.PUBLIC_ORIGIN || "https://mail.loriumarchive.com";
-  const identity = await validIdentity();
-  if (!identity) return NextResponse.redirect(`${origin}/?error=identity`);
   const code = request.nextUrl.searchParams.get("code");
   const state = request.nextUrl.searchParams.get("state");
   const expected = request.cookies.get(STATE_COOKIE)?.value;
@@ -61,10 +58,6 @@ export async function GET(request: NextRequest) {
   if (!account) return NextResponse.redirect(`${origin}/?error=domain`);
 
   const email = (account.primaryEmailAddress || account.mailboxAddress || "").toLowerCase();
-  if (email !== identity.session.email.toLowerCase()) {
-    return NextResponse.redirect(`${origin}/?error=mailbox_mismatch`);
-  }
-
   const mailSession: MailSession = {
     accessToken: token.access_token,
     refreshToken: token.refresh_token,
@@ -72,10 +65,6 @@ export async function GET(request: NextRequest) {
     email,
     accountId: account.accountId,
   };
-
-  if (!await persistMailSession(identity.session, mailSession)) {
-    return NextResponse.redirect(`${origin}/?error=storage`);
-  }
 
   const response = NextResponse.redirect(origin);
   response.cookies.delete(STATE_COOKIE);
