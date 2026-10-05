@@ -52,6 +52,10 @@ export default function Mail() {
   const [login, setLogin] = useState({ email: "", password: "" });
   const [loginError, setLoginError] = useState("");
   const [loggingIn, setLoggingIn] = useState(false);
+  const [recoveryMode, setRecoveryMode] = useState(false);
+  const [recoveryToken, setRecoveryToken] = useState("");
+  const [resetPassword, setResetPassword] = useState("");
+  const [recoveryStatus, setRecoveryStatus] = useState("");
   const [mail, setMail] = useState<MailData>({});
   const [activeFolder, setActiveFolder] = useState("inbox");
   const [selected, setSelected] = useState<Message | null>(null);
@@ -64,6 +68,15 @@ export default function Mail() {
   const messages = useMemo(() => mail.messages || [], [mail]);
 
   useEffect(() => {
+    const fragment = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+    if (fragment.get("type") === "recovery" && fragment.get("access_token")) {
+      setRecoveryToken(fragment.get("access_token") || "");
+      setRecoveryMode(true);
+      window.history.replaceState({}, "", window.location.pathname);
+      setLoading(false);
+      return;
+    }
+
     fetch("/api/auth/me", { cache: "no-store" })
       .then(async (response) => {
         if (!response.ok) throw new Error();
@@ -112,6 +125,44 @@ export default function Mail() {
     } finally {
       setLoggingIn(false);
     }
+  }
+
+  async function requestRecovery() {
+    if (!login.email) {
+      setLoginError("ENTER YOUR LORIUM EMAIL FIRST");
+      return;
+    }
+    setLoginError("");
+    setRecoveryStatus("SENDING RECOVERY LINK");
+    try {
+      await fetch("/api/auth/recover", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: login.email }),
+      });
+      setRecoveryStatus("CHECK YOUR EMAIL · RECOVERY LINK SENT");
+    } catch {
+      setRecoveryStatus("UNABLE TO SEND RECOVERY LINK");
+    }
+  }
+
+  async function completeRecovery(event: React.FormEvent) {
+    event.preventDefault();
+    setRecoveryStatus("");
+    const response = await fetch("/api/auth/reset", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ accessToken: recoveryToken, password: resetPassword }),
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      setRecoveryStatus((data.error || "UNABLE TO RESET PASSWORD").toUpperCase());
+      return;
+    }
+    setRecoveryMode(false);
+    setRecoveryToken("");
+    setResetPassword("");
+    setRecoveryStatus("PASSWORD UPDATED · ENTER LORIUM");
   }
 
   async function loadFolder(name: string) {
@@ -188,6 +239,29 @@ export default function Mail() {
     return <main className="gate"><div className="gate-inner"><div className="wordmark">LORIUM</div><div className="lightline"/><p>OPENING ARCHIVE</p></div></main>;
   }
 
+  if (recoveryMode) {
+    return (
+      <main className="gate">
+        <div className="ambient" />
+        <form className="gate-inner identity-form" onSubmit={completeRecovery}>
+          <div className="wordmark">LORIUM</div>
+          <span className="index">IDENTITY / RECOVERY</span>
+          <div className="lightline" />
+          <p className="quiet">CHOOSE A NEW LORIUM PASSWORD.</p>
+          <label className="identity-field">
+            <span>NEW PASSWORD</span>
+            <input type="password" minLength={8} autoComplete="new-password" value={resetPassword} onChange={(e) => setResetPassword(e.target.value)} />
+          </label>
+          <button className="enter identity-enter" type="submit" disabled={resetPassword.length < 8}>
+            <span>UPDATE PASSWORD</span><i />
+          </button>
+          {recoveryStatus && <p className="identity-error">{recoveryStatus}</p>}
+          <small>PRIVATE / LORIUM IDENTITY</small>
+        </form>
+      </main>
+    );
+  }
+
   if (!identityEmail) {
     return (
       <main className="gate">
@@ -209,7 +283,9 @@ export default function Mail() {
             <span>{loggingIn ? "VERIFYING IDENTITY" : "ENTER LORIUM"}</span><i />
           </button>
           {loginError && <p className="identity-error">{loginError}</p>}
-          <small>SAME IDENTITY AS LORIUM CALENDAR</small>
+          {recoveryStatus && <p className="identity-error">{recoveryStatus}</p>}
+          <button className="identity-sever" type="button" onClick={requestRecovery}>FORGOT PASSWORD</button>
+          <small>YOUR LORIUM EMAIL IS YOUR IDENTITY</small>
         </form>
       </main>
     );
