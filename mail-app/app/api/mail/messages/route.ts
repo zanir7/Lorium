@@ -14,7 +14,9 @@ export async function GET(request: NextRequest) {
   const identity = await validIdentity();
   if (!identity) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   const result = await validSession();
-  if (!result) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!result || result.session.email.toLowerCase() !== identity.session.email.toLowerCase()) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
   const auth = { Authorization: `Zoho-oauthtoken ${result.session.accessToken}` };
 
   const folderId = request.nextUrl.searchParams.get("folderId");
