@@ -1,5 +1,5 @@
-@font-face{font-family:Vogue;src:url('/Vogue.ttf') format('truetype');font-display:swap}
 @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap');
+@font-face{font-family:Vogue;src:url('/Vogue.ttf') format('truetype');font-display:swap}
 
 :root{--black:#000;--white:#fff;--dim:#717171;--line:rgba(255,255,255,.11);--line2:rgba(255,255,255,.2);--glow:0 0 18px rgba(255,255,255,.14),0 0 46px rgba(255,255,255,.06)}
 *{box-sizing:border-box;margin:0;padding:0}
