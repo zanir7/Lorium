@@ -97,8 +97,16 @@ export default function Mail() {
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "Unable to verify Lorium identity.");
       setIdentityEmail(data.email || login.email);
-      setMailConnected(false);
       setLogin({ email: "", password: "" });
+
+      const statusResponse = await fetch("/api/auth/me", { cache: "no-store" });
+      const status = await statusResponse.json();
+      const connected = statusResponse.ok && Boolean(status.mailConnected);
+      setMailConnected(connected);
+      if (connected) {
+        setEmail(status.mailEmail || status.email || data.email || login.email);
+        await loadFolder("inbox");
+      }
     } catch (error) {
       setLoginError(error instanceof Error ? error.message.toUpperCase() : "ACCESS DENIED");
     } finally {
@@ -216,10 +224,10 @@ export default function Mail() {
           <div className="wordmark">LORIUM</div>
           <span className="index">IDENTITY VERIFIED / {identityEmail}</span>
           <div className="lightline" />
-          <p className="quiet">{error === "domain" ? "CONNECT A LORIUMARCHIVE.COM MAILBOX." : "CONNECT YOUR MAILBOX ONCE."}</p>
-          <a className="enter" href="/api/auth/zoho"><span>CONNECT LORIUM MAIL</span><i /></a>
+          <p className="quiet">{error === "domain" ? "ACTIVATE THE MATCHING LORIUM MAILBOX." : "ACTIVATE YOUR MAILBOX ONCE."}</p>
+          <a className="enter" href="/api/auth/zoho"><span>ACTIVATE LORIUM MAIL</span><i /></a>
           <button className="identity-sever" onClick={logout}>USE ANOTHER LORIUM IDENTITY</button>
-          <small>ZOHO AUTHORIZES MAIL ONLY · YOUR LORIUM LOGIN STAYS SEPARATE</small>
+          <small>ONE-TIME MAILBOX ACTIVATION · THEN YOUR LORIUM LOGIN IS ENOUGH</small>
         </div>
       </main>
     );
@@ -229,7 +237,7 @@ export default function Mail() {
     <main className="shell">
       <header className="topbar">
         <div><span className="brand">LORIUM</span><span className="system">MAIL / 001</span></div>
-        <div className="account"><span className="live-dot"/><span>{email}</span><button onClick={logout}>SEVER</button></div>
+        <div className="account"><span className="live-dot"/><span>{email}</span><button onClick={logout}>LOG OUT</button></div>
       </header>
 
       <aside className="rail">
