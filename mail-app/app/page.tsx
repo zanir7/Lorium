@@ -46,7 +46,12 @@ function dateOf(message: Message) {
 
 export default function Mail() {
   const [loading, setLoading] = useState(true);
+  const [identityEmail, setIdentityEmail] = useState("");
+  const [mailConnected, setMailConnected] = useState(false);
   const [email, setEmail] = useState("");
+  const [login, setLogin] = useState({ email: "", password: "" });
+  const [loginError, setLoginError] = useState("");
+  const [loggingIn, setLoggingIn] = useState(false);
   const [mail, setMail] = useState<MailData>({});
   const [activeFolder, setActiveFolder] = useState("inbox");
   const [selected, setSelected] = useState<Message | null>(null);
@@ -63,12 +68,43 @@ export default function Mail() {
       .then(async (response) => {
         if (!response.ok) throw new Error();
         const data = await response.json();
-        setEmail(data.email || "");
-        return loadFolder("inbox");
+        setIdentityEmail(data.email || "");
+        setMailConnected(Boolean(data.mailConnected));
+        if (data.mailConnected) {
+          setEmail(data.mailEmail || data.email || "");
+          return loadFolder("inbox");
+        }
       })
-      .catch(() => setEmail(""))
+      .catch(() => {
+        setIdentityEmail("");
+        setMailConnected(false);
+        setEmail("");
+      })
       .finally(() => setLoading(false));
   }, []);
+
+  async function signInLorium(event: React.FormEvent) {
+    event.preventDefault();
+    if (!login.email || !login.password) return;
+    setLoggingIn(true);
+    setLoginError("");
+    try {
+      const response = await fetch("/api/auth/lorium", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(login),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Unable to verify Lorium identity.");
+      setIdentityEmail(data.email || login.email);
+      setMailConnected(false);
+      setLogin({ email: "", password: "" });
+    } catch (error) {
+      setLoginError(error instanceof Error ? error.message.toUpperCase() : "ACCESS DENIED");
+    } finally {
+      setLoggingIn(false);
+    }
+  }
 
   async function loadFolder(name: string) {
     setActiveFolder(name);
@@ -76,7 +112,7 @@ export default function Mail() {
     setMessageBody("");
     const response = await fetch(`/api/mail/messages?folder=${encodeURIComponent(name)}`, { cache: "no-store" });
     if (response.status === 401) {
-      setEmail("");
+      setMailConnected(false);
       return;
     }
     const data = await response.json();
@@ -133,6 +169,8 @@ export default function Mail() {
 
   async function logout() {
     await fetch("/api/auth/logout", { method: "POST" });
+    setIdentityEmail("");
+    setMailConnected(false);
     setEmail("");
     setMail({});
     setSelected(null);
@@ -142,18 +180,46 @@ export default function Mail() {
     return <main className="gate"><div className="gate-inner"><div className="wordmark">LORIUM</div><div className="lightline"/><p>OPENING ARCHIVE</p></div></main>;
   }
 
-  if (!email) {
+  if (!identityEmail) {
+    return (
+      <main className="gate">
+        <div className="ambient" />
+        <form className="gate-inner identity-form" onSubmit={signInLorium}>
+          <div className="wordmark">LORIUM</div>
+          <span className="index">IDENTITY / PRIVATE SYSTEM</span>
+          <div className="lightline" />
+          <p className="quiet">ONE IDENTITY. EVERY LORIUM SYSTEM.</p>
+          <label className="identity-field">
+            <span>EMAIL</span>
+            <input type="email" autoComplete="email" value={login.email} onChange={(e) => setLogin({...login,email:e.target.value})} />
+          </label>
+          <label className="identity-field">
+            <span>PASSWORD</span>
+            <input type="password" autoComplete="current-password" value={login.password} onChange={(e) => setLogin({...login,password:e.target.value})} />
+          </label>
+          <button className="enter identity-enter" type="submit" disabled={loggingIn}>
+            <span>{loggingIn ? "VERIFYING IDENTITY" : "ENTER LORIUM"}</span><i />
+          </button>
+          {loginError && <p className="identity-error">{loginError}</p>}
+          <small>SAME IDENTITY AS LORIUM CALENDAR</small>
+        </form>
+      </main>
+    );
+  }
+
+  if (!mailConnected) {
     const error = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("error") : null;
     return (
       <main className="gate">
         <div className="ambient" />
         <div className="gate-inner">
           <div className="wordmark">LORIUM</div>
-          <span className="index">MAIL / PRIVATE CORRESPONDENCE</span>
+          <span className="index">IDENTITY VERIFIED / {identityEmail}</span>
           <div className="lightline" />
-          <p className="quiet">{error === "domain" ? "ACCESS IS LIMITED TO LORIUM ACCOUNTS." : "THE ARCHIVE IS QUIET."}</p>
-          <a className="enter" href="/api/auth/zoho"><span>ENTER WITH LORIUM MAIL</span><i /></a>
-          <small>SECURED BY ZOHO OAUTH · PASSWORDS NEVER TOUCH LORIUM</small>
+          <p className="quiet">{error === "domain" ? "CONNECT A LORIUMARCHIVE.COM MAILBOX." : "CONNECT YOUR MAILBOX ONCE."}</p>
+          <a className="enter" href="/api/auth/zoho"><span>CONNECT LORIUM MAIL</span><i /></a>
+          <button className="identity-sever" onClick={logout}>USE ANOTHER LORIUM IDENTITY</button>
+          <small>ZOHO AUTHORIZES MAIL ONLY · YOUR LORIUM LOGIN STAYS SEPARATE</small>
         </div>
       </main>
     );

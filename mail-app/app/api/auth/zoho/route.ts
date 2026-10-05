@@ -1,14 +1,18 @@
 import crypto from "node:crypto";
 import { NextResponse } from "next/server";
+import { IDENTITY_COOKIE, identityCookieOptions, sealIdentity, validIdentity } from "../../../../lib/identity";
 import { STATE_COOKIE } from "../../../../lib/session";
 
 export const runtime = "nodejs";
 
 export async function GET() {
+  const identity = await validIdentity();
+  const origin = process.env.PUBLIC_ORIGIN || "https://mail.loriumarchive.com";
+  if (!identity) return NextResponse.redirect(`${origin}/?error=identity`);
+
   const clientId = process.env.ZOHO_CLIENT_ID;
   if (!clientId) return NextResponse.json({ error: "Mail authorization is not configured." }, { status: 503 });
 
-  const origin = process.env.PUBLIC_ORIGIN || "https://mail.loriumarchive.com";
   const redirectUri = process.env.ZOHO_REDIRECT_URI || `${origin}/api/auth/callback`;
   const base = process.env.ZOHO_ACCOUNTS_BASE || "https://accounts.zoho.com";
   const state = crypto.randomBytes(24).toString("base64url");
@@ -27,5 +31,6 @@ export async function GET() {
   response.cookies.set(STATE_COOKIE, state, {
     httpOnly: true, secure: true, sameSite: "lax", path: "/", maxAge: 600,
   });
+  if (identity.refreshed) response.cookies.set(IDENTITY_COOKIE, sealIdentity(identity.session), identityCookieOptions);
   return response;
 }

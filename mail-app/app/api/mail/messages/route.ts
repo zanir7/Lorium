@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { validIdentity } from "../../../../lib/identity";
 import { SESSION_COOKIE, seal, sessionCookieOptions, validSession } from "../../../../lib/session";
 
 export const runtime = "nodejs";
@@ -10,6 +11,8 @@ function attachSession(response: NextResponse, result: NonNullable<Awaited<Retur
 }
 
 export async function GET(request: NextRequest) {
+  const identity = await validIdentity();
+  if (!identity) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   const result = await validSession();
   if (!result) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   const auth = { Authorization: `Zoho-oauthtoken ${result.session.accessToken}` };

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { validIdentity } from "../../../../lib/identity";
 import { seal, SESSION_COOKIE, STATE_COOKIE, sessionCookieOptions } from "../../../../lib/session";
 
 export const runtime = "nodejs";
@@ -12,6 +13,8 @@ type Account = {
 
 export async function GET(request: NextRequest) {
   const origin = process.env.PUBLIC_ORIGIN || "https://mail.loriumarchive.com";
+  const identity = await validIdentity();
+  if (!identity) return NextResponse.redirect(`${origin}/?error=identity`);
   const code = request.nextUrl.searchParams.get("code");
   const state = request.nextUrl.searchParams.get("state");
   const expected = request.cookies.get(STATE_COOKIE)?.value;
