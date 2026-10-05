@@ -28,6 +28,15 @@ function htmlToText(input: string) {
   return node.textContent || node.innerText || "";
 }
 
+function authErrorMessage(code: string | null) {
+  if (code === "mail_account") return "MAILBOX NOT READY IN ZOHO · OPEN ZOHO MAIL ONCE, THEN RETRY";
+  if (code === "token") return "ZOHO AUTHORIZATION EXPIRED · SIGN IN AGAIN";
+  if (code === "authorization") return "AUTHORIZATION SESSION EXPIRED · START AGAIN";
+  if (code === "configuration") return "MAIL AUTHORIZATION IS MISCONFIGURED";
+  if (code === "unexpected") return "MAIL AUTHORIZATION HIT AN UNEXPECTED ERROR";
+  return code ? "MAIL SIGN-IN FAILED · TRY AGAIN" : "";
+}
+
 function senderOf(message: Message) {
   return message.sender || message.fromAddress || message.from || "Unknown";
 }
@@ -204,7 +213,7 @@ export default function Mail() {
           <div className="lightline" />
           <p className="quiet">YOUR LORIUM EMAIL. NOTHING ELSE.</p>
           <a className="enter" href="/api/auth/zoho"><span>ENTER LORIUM MAIL</span><i /></a>
-          {error && <p className="identity-error">MAIL SIGN-IN FAILED · TRY AGAIN</p>}
+          {error && <p className="identity-error">{authErrorMessage(error)}</p>}
           <small>AUTHORIZED LORIUMARCHIVE.COM MAILBOXES ONLY</small>
         </div>
       </main>
