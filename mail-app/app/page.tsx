@@ -263,30 +263,19 @@ export default function Mail() {
   }
 
   if (!identityEmail) {
+    const error = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("error") : null;
     return (
       <main className="gate">
         <div className="ambient" />
-        <form className="gate-inner identity-form" onSubmit={signInLorium}>
+        <div className="gate-inner">
           <div className="wordmark">LORIUM</div>
-          <span className="index">IDENTITY / PRIVATE SYSTEM</span>
+          <span className="index">MAIL / PRIVATE SYSTEM</span>
           <div className="lightline" />
-          <p className="quiet">ONE IDENTITY. EVERY LORIUM SYSTEM.</p>
-          <label className="identity-field">
-            <span>EMAIL</span>
-            <input type="email" autoComplete="email" value={login.email} onChange={(e) => setLogin({...login,email:e.target.value})} />
-          </label>
-          <label className="identity-field">
-            <span>PASSWORD</span>
-            <input type="password" autoComplete="current-password" value={login.password} onChange={(e) => setLogin({...login,password:e.target.value})} />
-          </label>
-          <button className="enter identity-enter" type="submit" disabled={loggingIn}>
-            <span>{loggingIn ? "VERIFYING IDENTITY" : "ENTER LORIUM"}</span><i />
-          </button>
-          {loginError && <p className="identity-error">{loginError}</p>}
-          {recoveryStatus && <p className="identity-error">{recoveryStatus}</p>}
-          <button className="identity-sever" type="button" onClick={requestRecovery}>FORGOT PASSWORD</button>
-          <small>YOUR LORIUM EMAIL IS YOUR IDENTITY</small>
-        </form>
+          <p className="quiet">YOUR LORIUM EMAIL. NOTHING ELSE.</p>
+          <a className="enter" href="/api/auth/zoho"><span>ENTER LORIUM MAIL</span><i /></a>
+          {error && <p className="identity-error">MAIL SIGN-IN FAILED · TRY AGAIN</p>}
+          <small>AUTHORIZED LORIUMARCHIVE.COM MAILBOXES ONLY</small>
+        </div>
       </main>
     );
   }
