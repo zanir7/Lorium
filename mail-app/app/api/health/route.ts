@@ -6,8 +6,7 @@ export async function GET() {
   const configured = Boolean(
     process.env.SESSION_SECRET &&
     process.env.ZOHO_CLIENT_ID &&
-    process.env.ZOHO_CLIENT_SECRET &&
-    process.env.ZOHO_REDIRECT_URI
+    process.env.ZOHO_CLIENT_SECRET
   );
 
   return NextResponse.json(

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { seal, SESSION_COOKIE, STATE_COOKIE, sessionCookieOptions, type MailSession } from "../../../../lib/session";
+import { publicOrigin, seal, SESSION_COOKIE, STATE_COOKIE, sessionCookieOptions, type MailSession } from "../../../../lib/session";
 
 export const runtime = "nodejs";
 
@@ -10,9 +10,11 @@ type Account = {
   enabled?: boolean;
 };
 
-function fail(origin: string, error: string, stage: string, status?: number) {
-  console.error("[mail-oauth] callback failed", { stage, status });
-  return NextResponse.redirect(`${origin}/?error=${encodeURIComponent(error)}`);
+function fail(origin: string, error: string, stage: string, detail?: number | string) {
+  console.error("[mail-oauth] callback failed", { stage, detail });
+  const response = NextResponse.redirect(`${origin}/?error=${encodeURIComponent(error)}`);
+  response.cookies.delete(STATE_COOKIE);
+  return response;
 }
 
 async function safeJson(response: Response): Promise<unknown> {
@@ -24,16 +26,26 @@ async function safeJson(response: Response): Promise<unknown> {
 }
 
 export async function GET(request: NextRequest) {
-  const origin = process.env.PUBLIC_ORIGIN || "https://mail.loriumarchive.com";
+  const origin = publicOrigin();
 
   try {
+    const zohoError = request.nextUrl.searchParams.get("error");
     const code = request.nextUrl.searchParams.get("code");
     const state = request.nextUrl.searchParams.get("state");
     const expected = request.cookies.get(STATE_COOKIE)?.value;
 
-    if (!code || !state || !expected || state !== expected) {
-      return fail(origin, "authorization", "state");
+    // Zoho reports a declined consent or an org restriction as ?error=...
+    if (zohoError) return fail(origin, "denied", "zoho-error", zohoError);
+    if (!code || !state) return fail(origin, "authorization", "missing-code");
+
+    if (!expected) {
+      // The sign-in outlived the state cookie (slow first-time setup) or began
+      // in another browser. Start over once; a second miss is a real failure.
+      if (state.endsWith(".r")) return fail(origin, "authorization", "state-missing-after-retry");
+      console.warn("[mail-oauth] state cookie missing, retrying once");
+      return NextResponse.redirect(`${origin}/api/auth/zoho?retry=1`);
     }
+    if (state !== expected) return fail(origin, "authorization", "state-mismatch");
 
     const clientId = process.env.ZOHO_CLIENT_ID;
     const clientSecret = process.env.ZOHO_CLIENT_SECRET;

@@ -66,9 +66,9 @@ export async function GET(request: NextRequest) {
   const folder = foldersBody?.data?.find((item) => {
     const name = (item.folderName || item.folderType || "").toLowerCase();
     return name === requested || (requested === "inbox" && name.includes("inbox"));
-  }) || foldersBody?.data?.[0];
+  }) || (requested === "inbox" ? foldersBody?.data?.[0] : undefined);
 
-  if (!folder) return attachSession(NextResponse.json({ folders: [], messages: [] }), result);
+  if (!folder) return attachSession(NextResponse.json({ folders: foldersBody?.data || [], messages: [] }), result);
 
   const query = new URLSearchParams({
     folderId: folder.folderId,
