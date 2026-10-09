@@ -11,6 +11,10 @@ export type MailSession = {
 
 export const SESSION_COOKIE = "lorium_mail";
 export const STATE_COOKIE = "lorium_oauth_state";
+// First-time Zoho sign-in (password setup, verification, 2FA) can take a while.
+export const STATE_MAX_AGE = 60 * 30;
+
+export const publicOrigin = () => process.env.PUBLIC_ORIGIN || "https://mail.loriumarchive.com";
 
 const secret = () => {
   const value = process.env.SESSION_SECRET;

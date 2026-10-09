@@ -23,15 +23,17 @@ type MailData = {
 
 function htmlToText(input: string) {
   if (typeof window === "undefined") return input;
-  const node = document.createElement("div");
-  node.innerHTML = input;
-  return node.textContent || node.innerText || "";
+  // DOMParser builds an inert document: unlike innerHTML on a live element,
+  // it never loads images or fires handlers like <img onerror> from an email.
+  const doc = new DOMParser().parseFromString(input, "text/html");
+  return doc.body.textContent || "";
 }
 
 function authErrorMessage(code: string | null) {
   if (code === "mail_account") return "MAILBOX NOT READY IN ZOHO · OPEN ZOHO MAIL ONCE, THEN RETRY";
   if (code === "token") return "ZOHO AUTHORIZATION EXPIRED · SIGN IN AGAIN";
-  if (code === "authorization") return "AUTHORIZATION SESSION EXPIRED · START AGAIN";
+  if (code === "authorization") return "SIGN-IN EXPIRED OR STARTED IN ANOTHER WINDOW · START AGAIN HERE";
+  if (code === "denied") return "ACCESS WAS NOT GRANTED IN ZOHO · ACCEPT THE PERMISSIONS TO CONTINUE";
   if (code === "configuration") return "MAIL AUTHORIZATION IS MISCONFIGURED";
   if (code === "unexpected") return "MAIL AUTHORIZATION HIT AN UNEXPECTED ERROR";
   return code ? "MAIL SIGN-IN FAILED · TRY AGAIN" : "";
@@ -55,8 +57,6 @@ function dateOf(message: Message) {
 
 export default function Mail() {
   const [loading, setLoading] = useState(true);
-  const [identityEmail, setIdentityEmail] = useState("");
-  const [mailConnected, setMailConnected] = useState(false);
   const [email, setEmail] = useState("");
   const [mail, setMail] = useState<MailData>({});
   const [activeFolder, setActiveFolder] = useState("inbox");
@@ -75,16 +75,10 @@ export default function Mail() {
       .then(async (response) => {
         if (!response.ok) throw new Error();
         const data = await response.json();
-        setIdentityEmail(data.email || "");
-        setMailConnected(Boolean(data.mailConnected));
-        if (data.mailConnected) {
-          setEmail(data.mailEmail || data.email || "");
-          return loadFolder("inbox");
-        }
+        setEmail(data.mailEmail || data.email || "");
+        return loadFolder("inbox");
       })
       .catch(() => {
-        setIdentityEmail("");
-        setMailConnected(false);
         setEmail("");
       })
       .finally(() => setLoading(false));
@@ -115,8 +109,6 @@ export default function Mail() {
     try {
       const response = await fetch(`/api/mail/messages?folder=${encodeURIComponent(name)}`, { cache: "no-store" });
       if (response.status === 401) {
-        setIdentityEmail("");
-        setMailConnected(false);
         setEmail("");
         return;
       }
@@ -172,8 +164,6 @@ export default function Mail() {
       });
       const data = await response.json();
       if (response.status === 401) {
-        setIdentityEmail("");
-        setMailConnected(false);
         setEmail("");
         throw new Error("Session expired. Sign in again; your draft is saved.");
       }
@@ -191,8 +181,6 @@ export default function Mail() {
 
   async function logout() {
     await fetch("/api/auth/logout", { method: "POST" });
-    setIdentityEmail("");
-    setMailConnected(false);
     setEmail("");
     setMail({});
     setSelected(null);
@@ -202,7 +190,7 @@ export default function Mail() {
     return <main className="gate"><div className="gate-inner"><div className="wordmark">LORIUM</div><div className="lightline"/><p>OPENING ARCHIVE</p></div></main>;
   }
 
-  if (!identityEmail) {
+  if (!email) {
     const error = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("error") : null;
     return (
       <main className="gate">
@@ -215,24 +203,6 @@ export default function Mail() {
           <a className="enter" href="/api/auth/zoho"><span>ENTER LORIUM MAIL</span><i /></a>
           {error && <p className="identity-error">{authErrorMessage(error)}</p>}
           <small>AUTHORIZED LORIUMARCHIVE.COM MAILBOXES ONLY</small>
-        </div>
-      </main>
-    );
-  }
-
-  if (!mailConnected) {
-    const error = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("error") : null;
-    return (
-      <main className="gate">
-        <div className="ambient" />
-        <div className="gate-inner">
-          <div className="wordmark">LORIUM</div>
-          <span className="index">IDENTITY VERIFIED / {identityEmail}</span>
-          <div className="lightline" />
-          <p className="quiet">{error === "domain" ? "ACTIVATE THE MATCHING LORIUM MAILBOX." : "ACTIVATE YOUR MAILBOX ONCE."}</p>
-          <a className="enter" href="/api/auth/zoho"><span>ACTIVATE LORIUM MAIL</span><i /></a>
-          <button className="identity-sever" onClick={logout}>USE ANOTHER LORIUM IDENTITY</button>
-          <small>ONE-TIME MAILBOX ACTIVATION · THEN YOUR LORIUM LOGIN IS ENOUGH</small>
         </div>
       </main>
     );
@@ -276,7 +246,7 @@ export default function Mail() {
 
       <article className={`reader ${selected ? "mobile-open" : ""}`}>
         {selected ? <>
-          <button className="back" onClick={() => setSelected(null)}>← INBOX</button>
+          <button className="back" onClick={() => setSelected(null)}>← {activeFolder.toUpperCase()}</button>
           <div className="reader-head">
             <span className="message-index">CORRESPONDENCE / {selected.messageId.slice(-4)}</span>
             <h1>{selected.subject || "Untitled correspondence"}</h1>

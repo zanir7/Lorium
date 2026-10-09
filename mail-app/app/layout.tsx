@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Lorium — Mail",
+  title: "Lorium Mail",
   description: "Private correspondence for Lorium.",
   robots: { index: false, follow: false },
 };
